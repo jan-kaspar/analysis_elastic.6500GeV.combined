@@ -1,0 +1,72 @@
+#!/bin/bash
+
+csModels=(
+	"exp,rho=0.10"
+	"exp,rho=0.14"
+	"non-exp,rho=0.10"
+	"non-exp,rho=0.14"
+)
+
+norms=(
+	"0.800"
+	"0.850"
+	"0.880"
+	"0.900"
+	"0.930"
+	"0.950"
+	"0.970"
+	"0.990"
+	"1.000"
+	"1.010"
+	"1.030"
+	"1.050"
+	"1.070"
+	"1.100"
+	"1.120"
+	"1.150"
+	"1.200"
+)
+
+norms=(
+	"0.800"
+	"0.900"
+	"0.950"
+	"1.000"
+	"1.050"
+	"1.100"
+	"1.200"
+)
+
+seeds=`seq 1 10`
+
+#----------------------------------------------------------------------------------------------------
+
+function RunOne()
+{
+	seed="$1"
+
+	for model in ${csModels[*]}
+	do
+		for norm in ${norms[*]}
+		do
+			# TODO
+			#dir="fits/$model/$norm"
+			dir="fits2/$model/$norm"
+
+			mkdir -p "$dir"
+
+			# TODO
+			#./normalize_and_fit "simulation.root" "$model/h_sim_seed$seed" "$norm" "$dir/fit_seed$seed.root" &> "$dir/fit_seed$seed.log"
+			./normalize_and_fit "simulation2.root" "$model/h_sim_seed$seed" "$norm" "$dir/fit_seed$seed.root" &> "$dir/fit_seed$seed.log"
+		done
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+
+make "normalize_and_fit" || exit 1
+
+for seed in $seeds
+do
+	RunOne "$seed" &
+done
