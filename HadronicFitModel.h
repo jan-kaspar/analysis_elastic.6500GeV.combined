@@ -10,17 +10,17 @@ using namespace Elegent;
 class HadronicFitModel : public Model
 {
   public:
-	/// modulus parameters
-	enum ModulusMode { mmUnknown, mmExp, mmVojtech, mmVojtechHighTFixed } modulusMode;
+	/// modulus parameters (low |t|)
+	enum ModulusMode { mmUnknown, mmExp } modulusMode;
 	double a, b1, b2, b3, b4, b5, b6, b7, b8, b9;
-	double a2, c1, c2, d1;
-	
+
+	/// modulus parameters (high |t|)
+	unsigned int modulusHighTVariant;
+	double hts; ///< scale factor for the high-|t| part
+
 	/// parameters for blending the low-|t| (variable) and high-|t| (fixed) modulus
 	/// the interval (t1, t2) corresponds to (-3 sigma, +3 sigma)
 	double t1, t2;
-
-	/// scale factor for the high-|t| part
-	double hts;
 
 	/// phase parameters
 	enum PhaseMode { pmUnknown, pmConstant, pmBailly, pmStandard, pmPeripheral, pmPolynomial } phaseMode;
@@ -29,9 +29,11 @@ class HadronicFitModel : public Model
     HadronicFitModel() :
 		modulusMode(mmExp),
 		a(0.), b1(0.), b2(0.), b3(0.), b4(0.), b5(0.), b6(0.), b7(0.), b8(0.), b9(0.),
-		a2(0.), c1(0.), c2(0.), d1(0.),
-		t1(0.2), t2(0.5),
+
+		modulusHighTVariant(2),
 		hts(1.),
+		t1(0.2), t2(0.5),
+
 		phaseMode(pmUnknown),
 		p0(0.), p1(0.), p2(0.), p3(0.), p_td(0.), p_t0(0.), p_tau(0.), p_A(0.), p_ka(0.), p_tm(0.),
 		integ_workspace_initialized(false)
@@ -64,9 +66,9 @@ class HadronicFitModel : public Model
 		if (modulusMode == mmExp)
 			printf("\t\ta=%.3E, b1=%.3E, b2=%.3E, b3=%.3E, b4=%.3E, b5=%.3E, b6=%.3E, b7=%.3E, b8=%.3E, b9=%.3E\n",
 				a, b1, b2, b3, b4, b5, b6, b7, b8, b9);
-		if (modulusMode == mmVojtech || modulusMode == mmVojtechHighTFixed)
-			printf("\t\ta=%.3E, a2=%.3E, b1=%.3E, b2=%.3E, b3=%.3E, c1=%.3E, c2=%.3E, d1=%.3E\n", a, a2, b1, b2, b3, c1, c2, d1);
-		
+
+		printf("\tmodulus at high |t|: variant %u\n", modulusHighTVariant);
+
 		printf("\tphase: %s\n", GetPhaseModeString().c_str());
 		if (phaseMode == pmConstant)
 			printf("\t\tp0=%.3E\n", p0);
@@ -85,14 +87,11 @@ class HadronicFitModel : public Model
 		if (modulusMode == mmExp)
 			printf("%s->modulusMode = HadronicFitModel::mmExp;\n%s->a=%.5E;\n%s->b1=%.5E;\n%s->b2=%.5E;\n%s->b3=%.5E;\n%s->b4=%.5E;\n%s->b5=%.5E;\n%s->b6=%.5E;\n%s->b7=%.5E;\n%s->b8=%.5E;\n%s->b9=%.5E;\n",
 				name, name, a, name, b1, name, b2, name, b3, name, b4, name, b5, name, b6, name, b7, name, b8, name, b9);
-		if (modulusMode == mmVojtech)
-			printf("%s->modulusMode = HadronicFitModel::mmVojtech;\n%s->a=%.5E;\n%s->a2=%.5E;\n%s->b1=%.5E;\n%s->b2=%.5E;\n%s->b3=%.5E;\n%s->c1=%.5E;\n%s->c2=%.5E;\n%s->d1=%.5E;\n",
-				name, name, a, name, a2, name, b1, name, b2, name, b3, name, c1, name, c2, name, d1);
-		if (modulusMode == mmVojtechHighTFixed)
-			printf("%s->modulusMode = HadronicFitModel::mmVojtechHighTFixed;\n%s->a=%.5E;\n%s->a2=%.5E;\n%s->b1=%.5E;\n%s->b2=%.5E;\n%s->b3=%.5E;\n%s->c1=%.5E;\n%s->c2=%.5E;\n%s->d1=%.5E;\n",
-				name, name, a, name, a2, name, b1, name, b2, name, b3, name, c1, name, c2, name, d1);
 
-		if (modulusMode == mmExp || modulusMode == mmVojtechHighTFixed)
+		printf("%s->modulusHighTVariant = %u\n", name, modulusHighTVariant);
+		printf("%s->hts = %.1E\n", name, hts);
+
+		if (modulusMode == mmExp)
 			printf("%s->t1=%.5E;\n%s->t2=%.5E;\n", name, t1, name, t2);
 
 		printf("\n");
@@ -116,9 +115,8 @@ class HadronicFitModel : public Model
 	{
 		char buf_m[200];
 		if (modulusMode == mmExp)
-			sprintf(buf_m, "modulus: exp, a=%.3E, b1=%.3E, b2=%.3E, b3=%.3E, b4=%.3E, b5=%.3E, b6=%.3E, b7=%.3E, b8=%.3E, b9=%.3E", a, b1, b2, b3, b4, b5, b6, b7, b8, b9);
-		if (modulusMode == mmVojtech || modulusMode == mmVojtechHighTFixed)
-			sprintf(buf_m, "mudulus: Vojtech, a=%.3E, a2=%.3E, b1=%.3E, b2=%.3E, b3=%.3E, c1=%.3E, c2=%.3E, d1=%.3E", a, a2, b1, b2, b3, c1, c2, d1);
+			sprintf(buf_m, "modulus: exp, a=%.3E, b1=%.3E, b2=%.3E, b3=%.3E, b4=%.3E, b5=%.3E, b6=%.3E, b7=%.3E, b8=%.3E, b9=%.3E",
+				a, b1, b2, b3, b4, b5, b6, b7, b8, b9);
 
 		char buf_p[200];
 		if (phaseMode == pmConstant)
@@ -140,8 +138,6 @@ class HadronicFitModel : public Model
 		char buf_m[200];
 		if (modulusMode == mmExp)
 			sprintf(buf_m, "a=%.3E, b1=%.3E, b2=%.3E, b3=%.3E, b4=%.3E, b5=%.3E, b6=%.3E, b7=%.3E, b8=%.3E, b9=%.3E | ", a, b1, b2, b3, b4, b5, b6, b7, b8, b9);
-		if (modulusMode == mmVojtech || modulusMode == mmVojtechHighTFixed)
-			sprintf(buf_m, "a=%.3E, a2=%.3E, b1=%.3E, b2=%.3E, b3=%.3E, c1=%.3E, c2=%.3E, d1=%.3E | ", a, a2, b1, b2, b3, c1, c2, d1);
 
 		char buf_p[200];
 		if (phaseMode == pmConstant)
@@ -162,8 +158,6 @@ class HadronicFitModel : public Model
     virtual std::string GetModulusModeString() const
 	{
 		if (modulusMode == mmExp) return "exp";
-		if (modulusMode == mmVojtech) return "Vojtech";
-		if (modulusMode == mmVojtechHighTFixed) return "VojtechHighTFixed";
 
 		return "unknown";
 	}
@@ -190,6 +184,8 @@ class HadronicFitModel : public Model
 		return 0;
 	}
 
+	double DsigmaDTHighT(double t) const;
+
     virtual TComplex Amp(double t) const;
 
 	double upper_bound_t, precision_t;
@@ -204,10 +200,80 @@ class HadronicFitModel : public Model
 
 //----------------------------------------------------------------------------------------------------
 
+double HadronicFitModel::DsigmaDTHighT(double t) const
+{
+	double x = -t;
+
+	// exp4+exp2
+	if (modulusHighTVariant == 1)
+	{
+		const double P0 = 6.11442e+02;
+		const double P1 = -2.07544e+01;
+		const double P2 = 1.01559e+00;
+		const double P3 = 2.23444e+01;
+		const double P4 = -9.65895e+01;
+		const double P5 = 2.89226e-04;
+		const double P6 = 1.44707e+01;
+		const double P7 = -1.09700e+01;
+
+		return P0*exp(P1*x + P2*x*x + P3*x*x*x + P4*x*x*x*x) + P5*exp(P6*x + P7*x*x);
+	}
+
+	// p1*exp3+p1*exp1
+	if (modulusHighTVariant == 2)
+	{
+		const double P0 = 6.24949e+02;
+		const double P1 = -2.56314e+02;
+		const double P2 = -2.04532e+01;
+		const double P3 = 8.49336e+00;
+		const double P4 = -1.60850e+01;
+		const double P5 = -1.11034e+01;
+		const double P6 = 2.25886e+01;
+		const double P7 = -7.02090e+00;
+
+		return (P0 + P1*x) * exp(P2*x + P3*x*x + P4*x*x*x) + (P5 + P6*x) * exp(P7*x);
+	}
+
+	// p1*exp3+p2*exp2
+	if (modulusHighTVariant == 3)
+	{
+		const double P0 = 7.16305e+02;
+		const double P1 = -2.37871e+02;
+		const double P2 = -1.96623e+01;
+		const double P3 = 9.34281e+00;
+		const double P4 = -1.50302e+01;
+		const double P5 = -1.02707e+02;
+		const double P6 = 8.08324e+01;
+		const double P7 = 2.20613e+02;
+		const double P8 = -1.29148e+01;
+		const double P9 = 3.09810e+00;
+
+		return (P0 + P1*x) * exp(P2*x + P3*x*x + P4*x*x*x) + (P5 + P6*x + P7*x*x) * exp(P8*x + P9*x*x);
+	}
+
+	// exp3-intf-exp1
+	if (modulusHighTVariant == 4)
+	{
+		const double P0 = 2.65511e+00;
+		const double P1 = 2.55649e+01;
+		const double P2 = -1.02703e+01;
+		const double P3 = 4.42715e+00;
+		const double P4 = -6.83600e+00;
+		const double P5 = 9.00437e-01;
+		const double P6 = -2.16005e+00;
+
+		return P1*P1*exp(2*P2*x + 2*P3*x*x + 2*P4*x*x*x) + 2 * cos(P0) * P1*exp(P2*x + P3*x*x + P4*x*x*x) * P5*exp(P6*x) + P5*P5*exp(2*P6*x);
+	}
+
+	return 0;
+}
+
+//----------------------------------------------------------------------------------------------------
+
 TComplex HadronicFitModel::Amp(double t) const
 {
 	// ---------- modulus ----------
-	
+
 	double m = 0.;
 
 	if (modulusMode == mmExp)
@@ -216,7 +282,7 @@ TComplex HadronicFitModel::Amp(double t) const
 		double t_avg = (t2 + t1)/2., t_si = (t2 - t_avg) / 3.;
 		double t_opt_m1 = -t_avg + 5. * t_si;
 		double t_opt_m2 = -t_avg - 5. * t_si;
-	
+
 		// main modulus part (for low |t|)
 		double bPol = 0., tPow = t;
 		bPol += b1 * tPow; tPow *= t;
@@ -229,20 +295,14 @@ TComplex HadronicFitModel::Amp(double t) const
 		bPol += b8 * tPow; tPow *= t;
 		bPol += b9 * tPow; tPow *= t;
 		double m1 = a * exp(bPol);
-		
+
 		if (t > t_opt_m1)
 		{
 			// optimisation for very low |t|: only m1 component
 			m = m1;
 		} else {	
 			// fixed part for higher |t|
-			double x = -t;
-			//double m2 = sqrt( ( 380.*exp(-18.25*x) + TMath::Erf( (x - 0.546)/145.3 ) * 2223. * exp(-6.79 * x) ) / cnts->sig_fac );
-			//double m2 = ( 21.1*exp(-8.50*x - 5.01*x*x) + (TMath::Erf((x - 0.55) / 0.0811) + 1.) * 0.263 * exp(-1.71*x) ) / sqrt(cnts->sig_fac);
-			double m2 = ( 21.1*exp(-8.50*x - 5.01*x*x) + (TMath::Erf((x - 0.55) / 0.0811) + 1.) * 0.469 * exp(-2.288*pow(x, 0.7)) ) / sqrt(cnts->sig_fac);
-			m2 *= 0.8;
-
-			m2 *= hts;
+			double m2 = hts * sqrt(DsigmaDTHighT(t) / cnts->sig_fac);
 
 			if (t < t_opt_m2)
 			{
@@ -250,51 +310,16 @@ TComplex HadronicFitModel::Amp(double t) const
 				m = m2;
 			} else {
 				// full modulus (low and high-|t| parts blended)
-				double p = (TMath::Erf( (x - t_avg) / t_si / sqrt(2.) ) + 1.) / 2.;
-				m = (t < -1.) ? m2 : m1*(1.-p) + m2*p;
+				double p = (TMath::Erf( (-t - t_avg) / t_si / sqrt(2.) ) + 1.) / 2.;
+				m = m1*(1.-p) + m2*p;
 			}
-		}
-	}
-
-	if (modulusMode == mmVojtech || modulusMode == mmVojtechHighTFixed)
-	{
-		// variable part
-		double m1 = (a + a2*t) * exp(b1*t + b2*t*t + b3*t*t*t);
-		double m2 = (c1 + c2*t) * exp(d1*t);
-		double m_v = m1 + m2;
-
-		if (modulusMode == mmVojtech)
-			m = m_v;
-		else {
-			// fixed part
-			double f_a = 6.610058960000e+08;
-			double f_a2 = 1.633227930000e+09;
-			double f_b1 = 8.287342810000e+00;
-			double f_b2 = 9.302256060000e+00;
-			double f_b3 = 1.466743830000e+01;
-			double f_c1 = 1.709871650000e+07;
-			double f_c2 = -2.731341890000e+07;
-			double f_d1 = 2.706162130000e+00;
-			
-			m1 = (f_a + f_a2*t) * exp(f_b1*t + f_b2*t*t + f_b3*t*t*t);
-			m2 = (f_c1 + f_c2*t) * exp(f_d1*t);
-			
-			double m_f = m1 + m2;
-			
-			m_f *= hts;
-	
-			// blending
-			double x = -t;
-			double t_avg = (t2 + t1)/2., t_si = (t2 - t_avg) / 3.;
-			double p = (TMath::Erf( (x - t_avg) / t_si / sqrt(2.) ) + 1.) / 2.;
-			m = (t < -1.) ? m_f : m_v*(1.-p) + m_f*p;
 		}
 	}
 
 	// ---------- phase ----------
 
 	double ph = 0.;
-	
+
 	if (phaseMode == pmUnknown)
 		printf("ERROR in HadronicFitModel::Amp > phase mode is `unknown'.\n");
 
