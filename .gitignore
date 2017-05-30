@@ -1,9 +1,11 @@
 *.swp
 *.swo
+*.out
 
 *.root
 *.pdf
 
 .*
+!.gitignore
 
 Elegent
