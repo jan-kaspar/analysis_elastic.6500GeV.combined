@@ -69,6 +69,8 @@ class HadronicFitModel : public Model
 
 		printf("\tmodulus at high |t|: variant %u\n", modulusHighTVariant);
 
+		printf("\tblending parameters: t1=%.3E, t2=%.3E\n", t1, t2);
+
 		printf("\tphase: %s\n", GetPhaseModeString().c_str());
 		if (phaseMode == pmConstant)
 			printf("\t\tp0=%.3E\n", p0);
