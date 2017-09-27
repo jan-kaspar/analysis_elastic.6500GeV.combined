@@ -67,7 +67,7 @@ class HadronicFitModel : public Model
 			printf("\t\ta=%.3E, b1=%.3E, b2=%.3E, b3=%.3E, b4=%.3E, b5=%.3E, b6=%.3E, b7=%.3E, b8=%.3E, b9=%.3E\n",
 				a, b1, b2, b3, b4, b5, b6, b7, b8, b9);
 
-		printf("\tmodulus at high |t|: variant %u\n", modulusHighTVariant);
+		printf("\tmodulus at high |t|: variant %u, hts=%.3f\n", modulusHighTVariant, hts);
 
 		printf("\tblending parameters: t1=%.3E, t2=%.3E\n", t1, t2);
 
