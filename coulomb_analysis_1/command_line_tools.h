@@ -46,7 +46,28 @@ bool TestUIntParameter(int argc, const char **argv, int &argi, const char *tag, 
 		if (argi < argc - 1)
 		{
 			argi++;
-			param = (int) atof(argv[argi]);
+			param = (unsigned int) atof(argv[argi]);
+		} else {
+			printf("ERROR: option '%s' requires an argument.\n", tag);
+			cl_error = 1;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+//----------------------------------------------------------------------------------------------------
+
+bool TestULongParameter(int argc, const char **argv, int &argi, const char *tag, unsigned long &param)
+{
+	if (strcmp(argv[argi], tag) == 0)
+	{
+		if (argi < argc - 1)
+		{
+			argi++;
+			param = (unsigned long) atof(argv[argi]);
 		} else {
 			printf("ERROR: option '%s' requires an argument.\n", tag);
 			cl_error = 1;
