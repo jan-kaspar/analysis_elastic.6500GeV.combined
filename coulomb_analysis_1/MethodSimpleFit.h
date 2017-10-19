@@ -421,14 +421,34 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	gDirectory = topDirectory;
 
-	TGraph *g_data_coll = new TGraph(); g_data_coll->SetName("g_data_coll");
+	TGraphErrors *g_data_coll_unc_stat = new TGraphErrors(); g_data_coll_unc_stat->SetName("g_data_coll_unc_stat");
+	TGraphErrors *g_data_coll_unc_syst = new TGraphErrors(); g_data_coll_unc_syst->SetName("g_data_coll_unc_syst");
+	TGraphErrors *g_data_coll_unc_full = new TGraphErrors(); g_data_coll_unc_full->SetName("g_data_coll_unc_full");
+
 	TGraph *g_dataset_idx = new TGraph(); g_dataset_idx->SetName("g_dataset_idx");
+
 	for (unsigned int i = 0; i < data_coll.size(); i++)
 	{
-		g_data_coll->SetPoint(i, data_coll[i].x_repr, data_coll[i].y);
+		double stat_unc = data_coll[i].y_stat_unc;
+		double full_unc = sqrt(data_coll_unc(i, i));
+		double syst_unc = sqrt(full_unc*full_unc - stat_unc*stat_unc);
+
+		g_data_coll_unc_stat->SetPoint(i, data_coll[i].x_repr, data_coll[i].y);
+		g_data_coll_unc_stat->SetPointError(i, 0., stat_unc);
+
+		g_data_coll_unc_syst->SetPoint(i, data_coll[i].x_repr, data_coll[i].y);
+		g_data_coll_unc_syst->SetPointError(i, 0., syst_unc);
+
+		g_data_coll_unc_full->SetPoint(i, data_coll[i].x_repr, data_coll[i].y);
+		g_data_coll_unc_full->SetPointError(i, 0., full_unc);
+
 		g_dataset_idx->SetPoint(i, data_coll[i].dataset, 0.);
 	}
-	g_data_coll->Write();
+
+	g_data_coll_unc_stat->Write();
+	g_data_coll_unc_syst->Write();
+	g_data_coll_unc_full->Write();
+
 	g_dataset_idx->Write();
 
 	data_coll_unc.Write("data_coll_unc");
