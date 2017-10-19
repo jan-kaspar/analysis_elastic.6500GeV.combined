@@ -1,0 +1,7 @@
+*.root
+
+*.swp
+*.swo
+
+build_models
+simulation
