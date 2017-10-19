@@ -128,6 +128,8 @@ int main(int argc, const char **argv)
 
 	hfm->modulusHighTVariant = 2;
 
+	hfm->hts = sqrt(1.06);	// takes into account recent normalisation change
+
 	hfm->a = 1.84E9;
 	hfm->b1 = 10.2;
 	hfm->b2 = 0.;
