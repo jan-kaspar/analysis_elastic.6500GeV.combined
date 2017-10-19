@@ -68,7 +68,7 @@ void MakeSystGenerator(const TMatrixDSym &cov_mat, const TH1D *h_stddev_ref)
 		h_stddev_regen->SetBinContent(bi, sqrt(S));
 	}
 
-	h_stddev_regen->Write("h_stddev_regen");
+	h_stddev_regen->Write("h_syst_stddev_regen");
 }
 
 //----------------------------------------------------------------------------------------------------
