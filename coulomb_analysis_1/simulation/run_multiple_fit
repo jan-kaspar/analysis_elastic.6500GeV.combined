@@ -1,0 +1,104 @@
+#!/bin/bash
+
+dir_base="simu-fit-study"
+
+models=(
+	"exp1,rho=0.10"
+	"exp1,rho=0.14"
+)
+
+uncertainties=(
+	"stat"
+	"stat+syst"
+	"stat+syst+norm"
+)
+
+norms=(
+	"0.00"
+)
+
+binnings=(
+	"ob-2-10-0.05"
+)
+
+max_seed="10"
+
+fitRanges=(
+	"0.15"
+)
+
+fitter="/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1/do_fit"
+
+#----------------------------------------------------------------------------------------------------
+
+make -C .. "do_fit" || exit 1
+
+#----------------------------------------------------------------------------------------------------
+
+function RunOne()
+{
+	local simu_dir="$dir_base/$model/$unc/norm$norm/$binning/seed$seed"
+
+	local t
+
+	local ae_stat="0"
+	local ae_syst="0"
+	local ae_norm="0" # always true to apply normalisation bias
+
+	local norm_sigma="0.00"
+
+	t=`echo "$unc"|grep "stat"`
+	if [ -n "$t" ]; then ae_stat="1"; fi
+
+	t=`echo "$unc"|grep "syst"`
+	if [ -n "$t" ]; then ae_syst="1"; fi
+
+	t=`echo "$unc"|grep "norm"`
+	if [ -n "$t" ]; then ae_norm="1"; fi
+
+	echo "* $simu_dir"
+	cd "$simu_dir"
+
+	nB="${model%,*}"
+	nB="${nB#exp}"
+
+	# loop over ranges
+	for t_max in ${fitRanges[@]}
+	do
+		local fit_dir="exp$nB,$unc,$t_max"
+		echo "  $fit_dir"
+		mkdir -p "$fit_dir"
+
+		local extra_config=""
+		if [ $t_max == "0.15" ]
+		then
+			extra_config="-t-tr1 0.16 -t-tr2 0.20"
+		fi
+
+		"$fitter" \
+			-input "simu-$binning" -b-degree "$nB" -t-max "$t_max" $extra_config \
+			-output "$fit_dir/fit.root" -results "$fit_dir/fit.out" \
+				&> "$fit_dir/fit.log" &
+	done
+
+	cd - &> /dev/null
+}
+
+#----------------------------------------------------------------------------------------------------
+
+for model in ${models[@]}
+do
+	for unc in ${uncertainties[@]}
+	do
+		for norm in ${norms[@]}
+		do
+			for binning in ${binnings[@]}
+			do
+				for seed in `seq 1 $max_seed`
+				do
+					RunOne
+				done
+			done
+		done
+	done
+done
