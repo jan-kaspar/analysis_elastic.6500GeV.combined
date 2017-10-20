@@ -1,0 +1,84 @@
+#!/bin/bash
+
+model="exp1,rho=0.10"
+binning="ob-2-10-0.05"
+
+dir_base="simu-validation"
+
+max_seed="100"
+
+#----------------------------------------------------------------------------------------------------
+
+make "simulation" || exit 1
+make "simu_validation" || exit 2
+
+#----------------------------------------------------------------------------------------------------
+
+dir="$dir_base/ref"
+mkdir -p "$dir"
+./simulation \
+	-model-file "build_models.root" -model-name "$model" \
+	-unc-file "build_uncertainties.root" \
+	-binning "$binning" \
+	-apply-stat-err 0 -apply-syst-err 0 -apply-norm-err 0 \
+	-seed "$seed"\
+	-norm-unc-sigma 0.03 -norm-unc-bias 0.\
+	-output "$dir/simu.root" &> "$dir/simu.log" &
+
+
+for seed in `seq 1 $max_seed`
+do
+	sleep 1
+	echo "seed = $seed"
+
+	dir="$dir_base/stat/$seed"
+	mkdir -p "$dir"
+	./simulation \
+		-model-file "build_models.root" -model-name "$model" \
+		-unc-file "build_uncertainties.root" \
+		-binning "$binning" \
+		-apply-stat-err 1 -apply-syst-err 0 -apply-norm-err 0 \
+		-seed "$seed"\
+		-norm-unc-sigma 0.03 -norm-unc-bias 0.\
+		-output "$dir/simu.root" &> "$dir/simu.log" &
+
+	dir="$dir_base/syst/$seed"
+	mkdir -p "$dir"
+	./simulation \
+		-model-file "build_models.root" -model-name "$model" \
+		-unc-file "build_uncertainties.root" \
+		-binning "$binning" \
+		-apply-stat-err 0 -apply-syst-err 1 -apply-norm-err 0 \
+		-seed "$seed"\
+		-norm-unc-sigma 0.03 -norm-unc-bias 0.\
+		-output "$dir/simu.root" &> "$dir/simu.log" &
+
+	dir="$dir_base/norm/$seed"
+	mkdir -p "$dir"
+	./simulation \
+		-model-file "build_models.root" -model-name "$model" \
+		-unc-file "build_uncertainties.root" \
+		-binning "$binning" \
+		-apply-stat-err 0 -apply-syst-err 0 -apply-norm-err 1 \
+		-seed "$seed"\
+		-norm-unc-sigma 0.03 -norm-unc-bias 0.\
+		-output "$dir/simu.root" &> "$dir/simu.log" &
+
+	dir="$dir_base/norm-bias/$seed"
+	mkdir -p "$dir"
+	./simulation \
+		-model-file "build_models.root" -model-name "$model" \
+		-unc-file "build_uncertainties.root" \
+		-binning "$binning" \
+		-apply-stat-err 0 -apply-syst-err 0 -apply-norm-err 1 \
+		-seed "$seed"\
+		-norm-unc-sigma 0.00 -norm-unc-bias 0.10\
+		-output "$dir/simu.root" &> "$dir/simu.log" &
+done
+
+wait
+
+for t in "stat" "syst" "norm" "norm-bias"
+do
+	./simu_validation "$dir_base/$t/validation.root" "$dir_base/ref/simu.root" $dir_base/$t/*/simu.root
+done
