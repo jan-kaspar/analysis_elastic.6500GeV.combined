@@ -5,7 +5,7 @@ binning="ob-2-10-0.05"
 
 dir_base="simu-validation"
 
-max_seed="100"
+max_seed="400"
 
 #----------------------------------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ mkdir -p "$dir"
 
 for seed in `seq 1 $max_seed`
 do
-	sleep 1
+	wait
 	echo "seed = $seed"
 
 	dir="$dir_base/stat/$seed"
