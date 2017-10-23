@@ -187,11 +187,10 @@ int main(int argc, const char **argv)
 	}
 
 	// apply normalisation errors
+	double scale = 1. + norm_unc_bias;
 	if (apply_norm_err)
-	{
-		const double scale = 1. + norm_unc_bias + gRandom->Gaus() * norm_unc_sigma;
-		h_dsdt->Scale(scale);
-	}
+		scale += gRandom->Gaus() * norm_unc_sigma;
+	h_dsdt->Scale(scale);
 
 	// prepare output
 	TFile *f_out = TFile::Open(fn_output.c_str(), "recreate");
