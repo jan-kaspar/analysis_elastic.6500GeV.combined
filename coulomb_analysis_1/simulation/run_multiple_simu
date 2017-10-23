@@ -1,28 +1,5 @@
 #!/bin/bash
 
-dir_base="simu-fit-study"
-
-models=(
-	"exp1,rho=0.10"
-	"exp1,rho=0.14"
-)
-
-uncertainties=(
-	"stat"
-	"stat+syst"
-	"stat+syst+norm"
-)
-
-norms=(
-	"0.00"
-)
-
-binnings=(
-	"ob-2-10-0.05"
-)
-
-max_seed="10"
-
 #----------------------------------------------------------------------------------------------------
 
 make "simulation" || exit 1
@@ -40,9 +17,9 @@ function RunOne()
 
 	local ae_stat="0"
 	local ae_syst="0"
-	local ae_norm="1" # always true to apply normalisation bias
+	local ae_norm="0"
 
-	local norm_sigma="0.00"
+	local norm_sigma="0.03"
 
 	t=`echo "$unc"|grep "stat"`
 	if [ -n "$t" ]; then ae_stat="1"; fi
@@ -51,7 +28,7 @@ function RunOne()
 	if [ -n "$t" ]; then ae_syst="1"; fi
 
 	t=`echo "$unc"|grep "norm"`
-	if [ -n "$t" ]; then norm_sigma="0.03"; fi
+	if [ -n "$t" ]; then ae_norm="1"; fi
 
 	./simulation \
 		-model-file "build_models.root" -model-name "$model" \
@@ -65,19 +42,96 @@ function RunOne()
 
 #----------------------------------------------------------------------------------------------------
 
-for model in ${models[@]}
-do
-	for unc in ${uncertainties[@]}
+function RunMultiple()
+{
+	for model in ${models[@]}
 	do
-		for norm in ${norms[@]}
+		for unc in ${uncertainties[@]}
 		do
-			for binning in ${binnings[@]}
+			for norm in ${norms[@]}
 			do
-				for seed in `seq 1 $max_seed`
+				for binning in ${binnings[@]}
 				do
-					RunOne
+					for seed in `seq 1 $max_seed`
+					do
+						RunOne
+					done
 				done
 			done
 		done
 	done
-done
+}
+
+#----------------------------------------------------------------------------------------------------
+# fit study
+#----------------------------------------------------------------------------------------------------
+
+dir_base="simu-fit-study"
+
+models=(
+	#"exp1,rho=0.10"
+	#"exp1,rho=0.14"
+	"exp3,rho=0.10"
+	"exp3,rho=0.14"
+)
+
+uncertainties=(
+	"stat"
+	"stat+syst"
+	"stat+syst+norm"
+)
+
+norms=(
+	"0.00"
+)
+
+binnings=(
+	"ob-2-10-0.05"
+)
+
+max_seed="100"
+
+#RunMultiple
+
+
+
+#----------------------------------------------------------------------------------------------------
+# fit-bias study as function of normalisation error
+#----------------------------------------------------------------------------------------------------
+
+dir_base="simu-norm-study"
+
+models=(
+	"exp1,rho=0.06"
+	"exp1,rho=0.10"
+	"exp1,rho=0.14"
+	"exp3,rho=0.06"
+	"exp3,rho=0.10"
+	"exp3,rho=0.14"
+)
+
+uncertainties=(
+	"none"
+)
+
+norms=(
+	"+0.10"
+	"+0.08"
+	"+0.06"
+	"+0.04"
+	"+0.02"
+	"0.00"
+	"-0.02"
+	"-0.04"
+	"-0.06"
+	"-0.08"
+	"-0.10"
+)
+
+binnings=(
+	"ob-2-10-0.05"
+)
+
+max_seed="1"
+
+RunMultiple
