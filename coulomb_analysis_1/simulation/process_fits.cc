@@ -41,16 +41,23 @@ int main()
 		"0.15"
 	};
 
+	// open model file
+	TFile *f_in_model = TFile::Open("build_models.root");
+
 	// prepare output
 	TFile *f_out = TFile::Open("process_fits.root", "recreate");
 
 	// process all
 	for (const auto &model : models)
 	{
+		printf("* %s\n", model.c_str());
+
 		TDirectory *d_model = f_out->mkdir(model.c_str());
 
-		const double rho0 = atof(model.substr(9).c_str());
-		const double a0 = 651.446; // mb
+		// get model data
+		TGraph *g_model_data = (TGraph *) f_in_model->Get((model + "/g_data").c_str());
+		const double a0 = g_model_data->GetY()[0];
+		const double rho0 = g_model_data->GetY()[1];
 
 		for (const auto &unc_mode : unc_modes)
 		{
@@ -113,6 +120,7 @@ int main()
 	}
 
 	// clean up
+	delete f_in_model;
 	delete f_out;
 
 	return 0;

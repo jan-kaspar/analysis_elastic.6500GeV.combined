@@ -35,6 +35,13 @@ void SampleModel(Model *m, const string &label, const vector<TH1D*> &b_hists)
 	TDirectory *d_model = d_top->mkdir(label.c_str());
 	gDirectory = d_model;
 
+	// save model data
+	TGraph *g_data = new TGraph();
+	TComplex amp0 = model->Amp(0.);
+	g_data->SetPoint(0, 0, cnts->sig_fac * amp0.Rho2());
+	g_data->SetPoint(1, 1, amp0.Re() / amp0.Im());
+	g_data->Write("g_data");
+
 	// make graphs
 	TGraph *g_dsdt_H = new TGraph();
 	TGraph *g_dsdt_CH = new TGraph();
