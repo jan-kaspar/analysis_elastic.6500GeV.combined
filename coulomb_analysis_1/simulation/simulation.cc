@@ -122,7 +122,23 @@ int main(int argc, const char **argv)
 	// set random seed
 	gRandom->SetSeed(seed);
 
-	// apply statistical uncertainties
+	// set statistical uncertainties
+	{
+		TFile *f_in_unc = TFile::Open(fn_uncertainties.c_str());
+		TH1D *h_rel_stat_unc = (TH1D *) f_in_unc->Get((binning + "/h_rel_stat_unc").c_str());
+
+		for (int bi = 1; bi <= h_dsdt->GetNbinsX(); bi++)
+		{
+			const double u_rel = h_rel_stat_unc->GetBinContent(bi);
+			const double v_true = h_dsdt_true->GetBinContent(bi);
+
+			h_dsdt->SetBinError(bi, u_rel * v_true);
+		}
+
+		delete f_in_unc;
+	}
+
+	// apply statistical errors
 	if (apply_stat_err)
 	{
 		TFile *f_in_unc = TFile::Open(fn_uncertainties.c_str());
@@ -143,7 +159,7 @@ int main(int argc, const char **argv)
 		delete f_in_unc;
 	}
 
-	// apply systematic uncertainties
+	// apply systematic errors
 	if (apply_syst_err)
 	{
 		TFile *f_in_unc = TFile::Open(fn_uncertainties.c_str());
@@ -170,7 +186,7 @@ int main(int argc, const char **argv)
 		delete f_in_unc;
 	}
 
-	// apply normalisation uncertainty/bias
+	// apply normalisation errors
 	if (apply_norm_err)
 	{
 		const double scale = 1. + norm_unc_bias + gRandom->Gaus() * norm_unc_sigma;
