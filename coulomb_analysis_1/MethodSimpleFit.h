@@ -689,16 +689,16 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(3, 0., sigma_eq);
 	
 	// TODO
+	g_fit_data->SetPoint(4, 0., results.rho);
+	g_fit_data->SetPoint(5, 0., results.rho_e);
+	
+	g_fit_data->SetPoint(6, 0., results.a);
+	g_fit_data->SetPoint(7, 0., results.a_e);
+	
+	g_fit_data->SetPoint(8, 0., results.B);
+	g_fit_data->SetPoint(9, 0., results.B_e);
+	
 	/*
-	g_fit_data->SetPoint(, 0., rho);
-	g_fit_data->SetPoint(, 0., rho_e);
-	
-	g_fit_data->SetPoint(, 0., a);
-	g_fit_data->SetPoint(, 0., a_e);
-	
-	g_fit_data->SetPoint(, 0., B);
-	g_fit_data->SetPoint(, 0., B_e);
-	
 	g_fit_data->SetPoint(, 0., si_tot);
 	g_fit_data->SetPoint(, 0., si_tot_e);
 	
