@@ -3,19 +3,6 @@
 
 #include "../../stat.h"
 
-// TODO: clean
-/*
-#include "TGraph.h"
-#include "TSpline.h"
-#include "TRandom3.h"
-#include "TMath.h"
-#include "TMatrixD.h"
-#include "TVectorD.h"
-
-#include "../command_line_tools.h"
-*/
-
-
 using namespace std;
 
 //----------------------------------------------------------------------------------------------------
@@ -44,6 +31,12 @@ int main(int argc, const char **argv)
 	// load reference
 	TFile *f_in_ref = TFile::Open(fn_ref.c_str());
 	TH1D *h_ref = (TH1D *) f_in_ref->Get("h_dsdt");
+
+	// make sure that reference histogram has no uncertainties
+	for (int bi = 1; bi <= h_ref->GetNbinsX(); bi++)
+	{
+		h_ref->SetBinError(bi, 0);
+	}
 
 	// prepare data
 	Stat st(h_ref->GetNbinsX());
