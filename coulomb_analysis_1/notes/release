@@ -1,0 +1,48 @@
+#!/bin/bash
+
+base_dir="/afs/cern.ch/user/j/jkaspar/www/totem/analyses/6500GeV/combined/coulomb_analysis_1"
+
+release=`date +%Y_%m_%d`
+release_dir="$base_dir/$release"
+release_file="$release.tar.gz"
+
+echo ">> making release $release"
+
+if [ -e "$base_dir/$release_file" ]
+then
+	echo "Release $release already exits."
+	exit 1
+fi
+
+# make release directory
+mkdir -p "$release_dir" || exit 2
+
+# copy plots
+echo "    copying plots..."
+cp -rL "../plots" "$release_dir"
+echo "    copying summaries..."
+cp -rL "../summaries" "$release_dir"
+
+# copy and build notes
+echo "    running TeX..."
+cp -r "macros.tex" "$release_dir"
+cat "notes.tex" | sed "\
+		s|\\\\def\\\\baseDir.*$|\\\\def\\\\baseDir{.}|; \
+	" > "$release_dir/notes.tex"
+cd "$release_dir"
+pdftex "notes.tex"
+
+# make tarball
+echo "    running tar..."
+cd "$base_dir"
+tar czvf "$release_file" "$release"
+
+# clean up
+echo "    cleaning up..."
+rm -rf "$release_dir"
+
+# make latest link
+echo "    updating links..."
+cd "$base_dir" || exit 3
+rm -r "latest.tar.gz"
+ln -s "$release_file" "latest.tar.gz"

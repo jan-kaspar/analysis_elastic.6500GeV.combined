@@ -21,10 +21,21 @@ for (int bi : binnings.keys)
 	label(binnings[bi]);
 
 	NewPad("$|t|\ung{GeV^2}$", "rel.~stat.~uncertainty");
-	draw(RootGetObject(f, binnings[bi]+"/h_rel_stat_unc"), "d0,eb", red);
+	draw(RootGetObject(f, binnings[bi]+"/h_rel_stat_unc"), "d0,eb", red+1pt);
+
+	NewPad("$|t|\ung{GeV^2}$", "rel.~stat.~uncertainty");
+	draw(RootGetObject(f, binnings[bi]+"/h_rel_stat_unc"), "d0,eb,vl", red+1pt);
+	limits((0, 0.), (0.2, 0.02), Crop);
 
 	NewPad("$|t|\ung{GeV^2}$", "rel.~syst.~uncertainty");
-	draw(RootGetObject(f, binnings[bi]+"/h_syst_stddev_orig"), "d0", red, "orig");
-	draw(RootGetObject(f, binnings[bi]+"/h_syst_stddev_regen"), "d0", blue+dashed, "regen");
+	draw(RootGetObject(f, binnings[bi]+"/h_syst_stddev_orig"), "d0,vl", heavygreen, "orig");
+	draw(RootGetObject(f, binnings[bi]+"/h_syst_stddev_regen"), "d0,vl", blue+dashed, "regen");
+
+	NewPad("$|t|\ung{GeV^2}$", "rel.~syst.~uncertainty");
+	draw(RootGetObject(f, binnings[bi]+"/h_syst_stddev_orig"), "d0,vl", heavygreen+1pt, "orig");
+	draw(RootGetObject(f, binnings[bi]+"/h_syst_stddev_regen"), "d0,vl", blue+dashed+1pt, "regen");
+	limits((0, 0.), (0.2, 0.03), Crop);
 	AttachLegend();
 }
+
+GShipout(hSkip=1mm);

@@ -1,0 +1,180 @@
+\input book
+
+%----------------------------------------------------------------------------------------------------
+
+\def\_{\leavevmode \kern.06em \vbox{\hrule width.5em}}
+
+\def\TODO{\cRed{TODO}\cBlack}
+
+%----------------------------------------------------------------------------------------------------
+
+\def\parseGet#1_#2;{%
+	\def\parseCurr{#1}%
+	\def\parseBuf{#2}%
+}
+
+\def\parseLoop{%
+	\expandafter\parseGet\parseBuf;%
+	\ifx\parseOutput\empty
+		\edef\parseOutput{\parseCurr}%
+	\else
+		\edef\parseOutput{\parseOutput\_\parseCurr}%
+	\fi
+	\ifx\parseBuf\empty
+	\else
+		\parseLoop
+	\fi
+}
+
+\def\parse#1{%
+	\def\parseBuf{#1_}%
+	\def\parseOutput{}%
+	\parseLoop
+	\parseOutput
+}
+
+%----------------------------------------------------------------------------------------------------
+
+\gdef\plot#1{%
+	\leavevmode
+	\pdfstartlink user {%
+	    /Subtype /Link
+	    /A << 
+	        /Type /Action 
+	        /S /URI 
+	        /URI (\baseDir/plots/#1) 
+	    >>}%
+	\cBlue [\parse{#1}]\cBlack
+	\pdfendlink
+}
+
+%----------------------------------------------------------------------------------------------------
+
+\gdef\summary#1{%
+	\leavevmode
+	\pdfstartlink user {%
+	    /Subtype /Link
+	    /A << 
+	        /Type /Action 
+	        /S /URI 
+	        /URI (\baseDir/summaries/#1) 
+	    >>}%
+	\cBlue [\parse{#1}]\cBlack
+	\pdfendlink
+}
+
+%----------------------------------------------------------------------------------------------------
+%----------------------------------------------------------------------------------------------------
+
+\def\InsertToc{%
+	\def\currentChapterName{Contents} \def\currentPartName{}%
+	\pdfdest name {TOC} xyz
+	\pdfoutline goto name {TOC} count 0 {\currentChapterName}%
+	\input\jobname.toc
+}
+
+%----------------------------------------------------------------------------------------------------
+
+\def\chapterBase#1#2{%
+	\advance\nchapter1
+	\nsection=0
+	\nsubsection=0
+	\nssubsection=0
+	\eqn=0
+	\tabn=0
+	\fign=0
+	%
+	%\vfil\eject\forceoddpage%
+	\ifnum\nchapter<65
+		\edef\currentChapterNumber{\the\nchapter}%
+		\edef\currentChapterName{Chapter \currentChapterNumber\ #2}%
+	\else
+		\expandafter\GetNextLetter\alphabet;
+		\edef\currentChapterNumber{\letter}%
+		\edef\currentChapterName{Appendix \currentChapterNumber\ #2}%
+	\fi
+	\edef\currentPartNumber{\currentChapterNumber}%
+	\edef\currentPartName{\currentChapterNumber\ #2}%
+	%
+	\TOCwrite{\TOCline}{0}{\currentChapterNumber}{#2}{\the\pageno}%
+	%
+	\pdfdest name {sn:\currentChapterNumber} xyz
+	\pdfoutline goto name {sn:\currentChapterNumber} count \GetOutlineCount{\currentChapterNumber} {\currentPartName}%
+	%
+%%	\vbox to0pt{}
+%%	\hbox{%
+%%		\vtop{%
+%%			\noindent\leftskip0pt plus 1fil\parfillskip0pt
+%%			\fChapterWord
+%%			\ifnum\nchapter<65
+%%				Chapter \currentChapterNumber
+%%			\else
+%%				Appendix \currentChapterNumber
+%%			\fi
+%%			\vskip3mm
+%%			%\hbox{\advance\hsize-10cm\\hbox to10cm{\hrulefill}}%
+%%			\line{\hskip9cm\hrulefill}%
+%%			\vskip3mm
+%%			\fchapter\baselineskip30pt #2
+%%		}%
+%%		\ifShowLabels
+%%			\rlap{\labelColor\quad#1\cBlack}%
+%%		\fi
+%%	}%
+%%	\vskip2cm
+%%	\mark{}%
+	\parindent = 0pt
+	\everypar={\parindent=\ParIndent \everypar={}}%
+		\penalty-\clubpenalty
+		\vskip1\baselineskip
+		\bgroup
+			\baselineskip\blschapter
+			\hbox{%
+				\vbox{%
+					\rightskip0pt plus1fill
+					\titskip
+					\bgroup
+						\fchapter
+						\currentPartName
+					\egroup
+				}%
+				\ifShowLabels
+					\rlap{\labelColor#1\cBlack}%
+				\fi
+			}%
+		\egroup
+		\mark{}%
+		\penalty\clubpenalty
+		%\vskip0.5\baselineskip
+
+	%
+	\NewChaptertrue
+}
+
+%----------------------------------------------------------------------------------------------------
+
+\pdfcatalog{/PageMode /UseOutlines}
+
+\let\BiggerFonts\SetFontSizesXII
+\let\NormalFonts\SetFontSizesX
+\let\SmallerFonts\SetFontSizesVIII
+
+\font\fchapter 		= pplb8z at 15pt
+\font\fsection	 	= pplb8z at 12pt
+\font\fsubsection 	= pplb8z at 10pt
+\font\fssubsection	= pplb8z at 10pt
+
+\ea\def\csname toc width 0\endcsname{6mm}
+\ea\def\csname toc width 1\endcsname{10mm}
+\ea\def\csname toc width 2\endcsname{10mm}
+\ea\def\csname toc width 3\endcsname{14mm}
+
+\ea\def\csname toc indent 0\endcsname{0mm}
+\ea\def\csname toc indent 1\endcsname{6mm}
+\ea\def\csname toc indent 2\endcsname{16mm}
+\ea\def\csname toc indent 3\endcsname{26mm}
+
+\NormalFonts
+
+\Reftrue
+\Toctrue
