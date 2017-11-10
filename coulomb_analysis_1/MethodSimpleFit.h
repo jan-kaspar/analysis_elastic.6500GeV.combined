@@ -17,6 +17,7 @@ TVectorD eig_values;
 TMatrixD E;
 TGraphErrors *g_de;
 TGraphErrors *g_cont;
+TGraph *g_largest_cont_idx;
 
 //----------------------------------------------------------------------------------------------------
 
@@ -29,7 +30,7 @@ double F_fit(double mt, double par[])
 	TComplex F_C = coulomb->Amp_pure(-mt);
 	TComplex F_H = hfm->Amp(-mt);
 	TComplex F_T = 0.;
-	
+
 	// amplitude choice
 	if (coulomb->mode == coulomb->mPC)
 		F_T = F_C;
@@ -78,7 +79,7 @@ void InterpolatePsi()
 	for (unsigned int i = 0; i < a_t.size(); i++)
 	{
 		double mt = a_t[i];
-		
+
 		TComplex Psi = coulomb->Psi_KL(-mt);
 
 		interpolatedPsiRe->SetPoint(i, mt, Psi.Re());
@@ -116,7 +117,7 @@ double S2_FCN::operator() (const std::vector<double> &par) const
 		else
 			diff(i) = data_coll[i].y - f_fit->Eval(data_coll[i].x_repr);
 	}
-	
+
 	// calculate diff^T * cov_matrix^-1 * diff
 	double S2 = 0.;
 	for (int i = 0; i < dim; i++)
@@ -143,6 +144,7 @@ double S2_FCN::operator() (const std::vector<double> &par) const
 		g_cont->SetMarkerStyle(20);
 
 		double S2_alt = 0.;
+		vector<pair<unsigned int, double>> v_idx_cont;
 		for (int i = 0; i < dim; i++)
 		{
 			double unc2 = eig_values(i);
@@ -154,9 +156,25 @@ double S2_FCN::operator() (const std::vector<double> &par) const
 			double cont2 = de(i) * de(i) * unc2;
 			//double cont = sqrt(cont2);
 
+			v_idx_cont.emplace_back(i, cont2);
+
 			g_cont->SetPoint(i, i, cont2);
 
 			S2_alt += cont2;
+		}
+
+		sort(v_idx_cont.begin(), v_idx_cont.end(), [](const pair<unsigned int, double> &left, const pair<unsigned int, double> &right) {
+			return left.second > right.second;
+		});
+
+		g_largest_cont_idx = new TGraph();
+		g_largest_cont_idx->SetName("g_largest_cont_idx");
+		g_largest_cont_idx->SetTitle(";eigenvector index;contribution to #chi^{2}");
+
+		for (const auto & p : v_idx_cont)
+		{
+			int idx = g_largest_cont_idx->GetN();
+			g_largest_cont_idx->SetPoint(idx, p.first, p.second);
 		}
 
 		/*
@@ -181,11 +199,11 @@ void SavePlotsBeforeFit(S2_FCN &fcn, TFitterMinuit *minuit)
 
 	// eigen decomposition of inverse covariance matrix
 	TMatrixDSymEigen eig_decomp(data_coll_unc_inv);
-	
+
 	int dim = data_coll_unc_inv.GetNrows();
 	eig_values.ResizeTo(dim);
 	eig_values = eig_decomp.GetEigenValues();
-	
+
 	E.ResizeTo(dim, dim);
 	E = eig_decomp.GetEigenVectors();	// in columns
 	E = E.Transpose(E);					// in rows
@@ -198,15 +216,19 @@ void SavePlotsBeforeFit(S2_FCN &fcn, TFitterMinuit *minuit)
 		sprintf(buf, "eigenvector %i", i);
 		TGraph *g = new TGraph();
 		g->SetName(buf);
-		g->SetTitle(";bin index");
+		g->SetTitle(";bin t_repr");
 		g->SetMarkerStyle(20);
-		
+
 		for (int j = 0; j < dim; j++)
-			g->SetPoint(j, j, E(i, j));
+		{
+			const double x = data_coll[j].x_repr;
+			const double y = E(i, j);
+			g->SetPoint(j, x, y);
+		}
 
 		g->Write();
 	}
-	
+
 	gDirectory = topDirectory;
 
 	// get parameters
@@ -221,10 +243,11 @@ void SavePlotsBeforeFit(S2_FCN &fcn, TFitterMinuit *minuit)
 	debug_fit = false;
 
 	// save plots
-	g_de->SetName("g_de before fit"); g_de->SetTitle("before fit"); g_de->SetLineColor(2); g_de->SetMarkerColor(2);
-	TGraphErrors *g_de_before = g_de; g_de_before->Write();
-	g_cont->SetName("g_cont before fit"); g_cont->SetTitle("before fit"); g_cont->SetLineColor(2); g_cont->SetMarkerColor(2);
-	TGraphErrors *g_cont_before = g_cont; g_cont_before->Write();
+	g_de->SetName("g_de before fit"); g_de->SetTitle("before fit;eigenvector idx;#delta"); g_de->SetLineColor(2); g_de->SetMarkerColor(2);
+	g_de->Write();
+
+	g_cont->SetName("g_cont before fit"); g_cont->SetTitle("before fit;eigenvector idx;contribution to #chi^{2}"); g_cont->SetLineColor(2); g_cont->SetMarkerColor(2);
+	g_cont->Write();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -243,10 +266,14 @@ void SavePlotsAfterFit(S2_FCN &fcn, TFitterMinuit *minuit)
 	debug_fit = false;
 
 	// save plots
-	g_de->SetName("g_de after fit"); g_de->SetTitle("after fit"); g_de->SetLineColor(4); g_de->SetMarkerColor(4);
-	TGraphErrors *g_de_after = g_de; g_de_after->Write();
-	g_cont->SetName("g_cont after fit"); g_cont->SetTitle("after fit"); g_cont->SetLineColor(4); g_cont->SetMarkerColor(4);
-	TGraphErrors *g_cont_after = g_cont; g_cont_after->Write();
+	g_de->SetName("g_de after fit"); g_de->SetTitle("after fit;eigenvector idx;#delta"); g_de->SetLineColor(4); g_de->SetMarkerColor(4);
+	g_de->Write();
+
+	g_cont->SetName("g_cont after fit"); g_cont->SetTitle("after fit;eigenvector idx;contribution to #chi^{2}"); g_cont->SetLineColor(4); g_cont->SetMarkerColor(4);
+	g_cont->Write();
+
+	g_largest_cont_idx->SetName("g_largest_cont_idx after fit");
+	g_largest_cont_idx->Write();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -275,7 +302,7 @@ void AnalyzeCompatibilityWithZero(const TVectorD &val, const TMatrixD &cov)
 
 		printf("\n");
 	}
-	
+
 	printf("\tcombined significances\n");
 
 	TMatrixD cov_I(TMatrixD::kInverted, cov);
@@ -311,7 +338,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	f_fit = new TF1("f_fit", f_fit_imp, 1E-5, 1., B_degree+2);
 	f_fit->SetNpx(1000);
 
-	t_max_fit = 0.25;	
+	t_max_fit = 0.25;
 	N_ii = 3; // default
 	//N_ii = 10; // test
 
@@ -351,16 +378,16 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 		minuit->SetParameter(i, buf, val, unc, lim_low, lim_high);
 	}
-	
+
 	// initial point - phase
 	minuit->SetParameter(B_degree+1, "p0", hfm->p0, 0.01, p0_lim_min, p0_lim_max);
-	
+
 	// ------------------------------ F_C+H fits, chosen formula
 
 	printf("\n>> setting chosen interference formula\n");
 	coulomb->mode = chosenCIMode;
 	coulomb->Print();
-	
+
 	t_min_fit = 0.;	// include region affected by Coulomb
 
 	bool release_p0 = (chosenCIMode != CoulombInterference::mPH);
@@ -453,7 +480,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_dataset_idx->Write();
 
 	data_coll_unc.Write("data_coll_unc");
-	
+
 	// ------------------------------ print covariance matrix
 
 	printf("\n>> covariance matrix\n");
@@ -467,7 +494,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 		}
 		printf("\n");
 	}
-	
+
 	// ------------------------------ draw fit result
 
 	TCanvas *c, *c_rel, *c_relC;
@@ -477,7 +504,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	TGraph *g_fit_CH = new TGraph(); g_fit_CH->SetName("g_fit_CH"); g_fit_CH->SetLineColor(1);
 	TGraph *g_fit_CH_rel = new TGraph(); g_fit_CH_rel->SetName("g_fit_CH_rel"); g_fit_CH_rel->SetLineColor(1);
 	TGraph *g_fit_CH_relC = new TGraph(); g_fit_CH_relC->SetName("g_fit_CH_relC"); g_fit_CH_relC->SetLineColor(1);
-	
+
 	TGraph *g_fit_CH_Zv = new TGraph(); g_fit_CH_Zv->SetName("g_fit_CH_Zv"); g_fit_CH_Zv->SetLineColor(8);
 
 	TGraph *g_fit_H = new TGraph(); g_fit_H->SetName("g_fit_H"); g_fit_H->SetLineColor(6);
@@ -494,7 +521,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 		if (t > 0.02)
 			dt = 1E-3;
-		
+
 		double y_ref = A_ref * exp(-B_ref * t);
 		double y_refC = y_ref + cnts->sig_fac * coulomb->Amp_pure(-t).Rho2();
 
@@ -553,7 +580,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	double p0 = minuit->GetParameter(B_degree+1);
 	double rho = cos(p0) / sin(p0);
 	double si_tot = sqrt( 16.*cnts->pi * cnts->sq_hbarc / (1. + rho * rho) * a );
-	
+
 	double si_inel = si_tot - si_el;
 
 	TF1 *f_t_der_amp_sq = new TF1("f_t_der_amp_sq", f_t_der_amp_sq_imp, 0., 3., 0);
@@ -577,7 +604,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	double b_ms_tot = 4. * ( log(hfm->Amp(0.).Im()) - log(hfm->Amp(-ep).Im()) ) / ep;
 
 	double b_ms_inel = si_tot / si_inel * b_ms_tot - si_el / si_inel * b_ms_el;
-	
+
 	double b_rms_el = sqrt(b_ms_el) * cnts->hbarc;		// conversion 1/GeV to fm
 	double b_rms_tot = sqrt(b_ms_tot) * cnts->hbarc;
 	double b_rms_inel = sqrt(b_ms_inel) * cnts->hbarc;
@@ -595,7 +622,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	double sigma_eq = sqrt(2.) * TMath::ErfcInverse(prob);
 
 	printf("\n>> fit quality: prob = %.3E, sig = %.3E\n\n", prob, sigma_eq);
-	
+
 	// ------------------------------ fill results
 
 	results.method = 0;
@@ -606,7 +633,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	results.prob = prob;
 	results.sig = sigma_eq;
 	results.quality = results.chi_sq / results.ndf;
-	
+
 	results.p0 = minuit->GetParameter(B_degree+1);
 	results.p0_e = minuit->GetParError(B_degree+1);
 
@@ -626,7 +653,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	results.b_rms_el = b_rms_el;
 	results.b_rms_inel = b_rms_inel;
 	results.b_rms_tot = b_rms_tot;
-	
+
 	// ------------------------------ print results for table
 
 	double V_a_a = minuit->GetCovarianceMatrixElement(0, 0);
@@ -643,7 +670,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	double V_A_A = sc_A * V_a_a * sc_A;
 	double V_A_rho = sc_A * V_a_p0 * sc_rho;
 	double V_rho_rho = sc_rho * V_p0_p0 * sc_rho;
-	
+
 	printf("sqrt(V_A_A) = %.3f\n", sqrt(V_A_A));
 	printf("sqrt(V_rho_rho) = %.3f\n", sqrt(V_rho_rho));
 	printf("correlation A and rho = %.3f\n", V_A_rho / sqrt(V_A_A) / sqrt(V_rho_rho));
@@ -688,21 +715,21 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(1, 0., m_ndf);
 	g_fit_data->SetPoint(2, 0., prob);
 	g_fit_data->SetPoint(3, 0., sigma_eq);
-	
+
 	// TODO
 	g_fit_data->SetPoint(4, 0., results.rho);
 	g_fit_data->SetPoint(5, 0., results.rho_e);
-	
+
 	g_fit_data->SetPoint(6, 0., results.a);
 	g_fit_data->SetPoint(7, 0., results.a_e);
-	
+
 	g_fit_data->SetPoint(8, 0., results.B);
 	g_fit_data->SetPoint(9, 0., results.B_e);
-	
+
 	/*
 	g_fit_data->SetPoint(, 0., si_tot);
 	g_fit_data->SetPoint(, 0., si_tot_e);
-	
+
 	g_fit_data->SetPoint(4, 0., si_el);
 	g_fit_data->SetPoint(5, 0., si_inel);
 	g_fit_data->SetPoint(6, 0., si_tot);
@@ -713,8 +740,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	*/
 
 	g_fit_data->Write("g_fit_data");
-	
-	
+
 	// ------------------------------ check compatibility of higher b parameters with 0
 
 	/*
@@ -734,7 +760,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 				hb_cov(i, j) = minuit->GetCovarianceMatrixElement(i+2, j+2);
 			}
 		}
-	
+
 		AnalyzeCompatibilityWithZero(hb_val, hb_cov);
 	}
 	*/
