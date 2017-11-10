@@ -1,0 +1,33 @@
+#!/bin/bash
+
+function ProcessOneDir()
+{
+	local dir="$1"
+
+	echo
+	echo ">> $dir"
+
+	cd "$dir" || return
+
+	for f in *.asy
+	do
+		echo "* $f"
+		asy "$f"
+	done
+
+	cd - &> /dev/null
+}
+
+#----------------------------------------------------------------------------------------------------
+
+# delete all pdfs
+find . -name "*.pdf"|while read f
+do
+	rm "$f"
+done
+
+# process all directories
+find . -type d|while read d
+do
+	ProcessOneDir "$d"
+done
