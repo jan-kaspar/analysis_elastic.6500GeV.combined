@@ -27,20 +27,77 @@
 \>>> file: /afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/DS-merged/merged.root
 \>>> object: [binning]/merged/combined/h\_dsdt
 \>> systematics
-\>>> file: /afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/systematics-old-ni/DS-fill5313/matrix\_numerical\_integration.root
-\>>> object: matrices/all-but-norm/combined/[binning]/cov\_mat
+\>>> file: /afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/systematics/matrix.root
+\>>> object: matrices/all-but-norm/[binning]/cov\_mat
 
 
 %----------------------------------------------------------------------------------------------------
-\chapter{Fit algorithm}
+\chapter[modelling]{Coulomb modelling}
+
+\> hadronic amplitude
+\>> modulus
+\>>> low $|t|$ ($|t| \ls 0.2\un{GeV^2}$): exponential form with variable parameters $a$ and $b_n$
+\eq{{\cal A}^{\rm N} = a \exp\left(\sum_{n = 1} b_n t^n\right)}
+\>>> high $|t|$ ($|t| \gs 0.4\un{GeV^2}$): fixed amplitude describing well the dip/bump structure
+\>>> medium $|t|$: smooth transition between the low- and high-$|t|$, implemented via error function
+\>> phase
+\>>> for the moment only constant is considered, only one parameter $\rh$
+\>>> TODO: try other central phases ??
+
+\> Coulomb amplitude: QED OPE + experimental form factors (Puckett)
+
+\> interference formula: Kundrat-Lokajicek (KL)
+
+\> implementation: Elegent v2
+
+
+%----------------------------------------------------------------------------------------------------
+\chapter[fit]{Fit procedure}
+
+\> input
+\>> $\d\si/\d t$ histogram: central values and statistical uncertainties
+\>> covariance matrix of relative systematic uncertainties
+
+\> program options
+\>> which uncertainties used: stat, syst, norm
+\>> $|t|_{\rm max}$: also has impact on where the low $|t|$ parametrisation is used
+
+\> procedure = sequence of several fit steps
+\>> typically 3 fit steps
+\>>> TODO: try more
+\>> initial point: $a = 1.84E9$, $b_1 = 10.2$, $b_2 = b_3 = 0.$, $\rh = 0.12$
+\>> TODO: try other
+
+\> between fit steps
+\>> adjust bin representative points: for each bin find $t^{\rm rep}$ such that
+\eq{f(t^{\rm rep}) = {1\over w} \int_{\rm bin} f(t)\,\d t}
+where $w$ represents the width of the bin
+
+\>> evaluate the covariance matrix of the systematics
+\>>> combine the matrix of relative systematics (input) with the last fit result
+
+\>> sample $\Psi$ function from the KL formula (to be used in the next fit step)
+
+\> each fit step
+\>> $\ch^2$ minimisation by ROOT::Minuit2
+\>> $\ch^2$ defined
+\eq{\ch^2 = \sum_{i,j} \De_i \mat V^{-1}_{ij} \De_j,\quad \De_i = c_i - f(t^{\rm rep}_i)}
+where $i,j$ are bin indeces, $\mat V$ is the covariance matrix (depending on which uncertainties are included), $c_i$ refers to the bin content of the $\d\si/\d t$ histogram, $f$ is the fit function and $t^{\rm rep}_i$ is the representative point of a fit
+
+%
+%	p0_lim_min = 1.32; p0_lim_max = 1.67;
 
 
 %----------------------------------------------------------------------------------------------------
 \chapter{Validation}
 
+\> TODO: MC tests
+
 
 %----------------------------------------------------------------------------------------------------
 \chapter{Results}
+
+
 
 
 %----------------------------------------------------------------------------------------------------
