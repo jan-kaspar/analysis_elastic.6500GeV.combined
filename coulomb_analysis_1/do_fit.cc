@@ -130,13 +130,12 @@ int main(int argc, const char **argv)
 
 	hfm->hts = sqrt(1.06);	// takes into account recent normalisation change
 
-	hfm->a = 1.84E9;
-	hfm->b1 = 10.2;
-	hfm->b2 = 0.;
-	hfm->b3 = 0.;
-
-	double rho_init = 0.12; // default value of rho
-	hfm->p0 = M_PI/2. - atan(rho_init);
+	string init_point_desc;
+	init_point_desc = "default"; hfm->a = 1.84E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
+	//init_point_desc = "test 1"; hfm->a = 1.84E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.06);
+	//init_point_desc = "test 2"; hfm->a = 1.84E9; hfm->b1 = 9.9; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
+	//init_point_desc = "test 3"; hfm->a = 1.70E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
+	printf(">> initial point: %s\n", init_point_desc.c_str());
 
 	model = hfm;
 

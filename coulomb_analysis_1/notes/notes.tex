@@ -63,10 +63,15 @@
 \>> $|t|_{\rm max}$: also has impact on where the low $|t|$ parametrisation is used
 
 \> procedure = sequence of several fit steps
-\>> typically 3 fit steps
-\>>> TODO: try more
-\>> initial point: $a = 1.84E9$, $b_1 = 10.2$, $b_2 = b_3 = 0.$, $\rh = 0.12$
-\>> TODO: try other
+\>> number of fit steps
+\>>> default: 3
+\>>> test: TODO 10
+
+\>> initial point
+\>>> default: $a = 1.84E9$, $b_1 = 10.2$, $b_2 = b_3 = 0$, $\rh = 0.12$
+\>>> test 1: $a = 1.84E9$, $b_1 = 10.2$, $b_2 = b_3 = 0$, $\rh = 0.06$
+\>>> test 2: $a = 1.84E9$, $b_1 = 9.9$, $b_2 = b_3 = 0$, $\rh = 0.12$
+\>>> test 3: $a = 1.70E9$, $b_1 = 10.2$, $b_2 = b_3 = 0$, $\rh = 0.12$
 
 \> between fit steps
 \>> adjust bin representative points: for each bin find $t^{\rm rep}$ such that
@@ -95,7 +100,11 @@ where $i,j$ are bin indeces, $\mat V$ is the covariance matrix (depending on whi
 
 
 %----------------------------------------------------------------------------------------------------
-\chapter{Results}
+\chapter[results]{Results}
+
+\section[results-checks]{Checks}
+
+\> 
 
 
 
