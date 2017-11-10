@@ -312,7 +312,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	f_fit->SetNpx(1000);
 
 	t_max_fit = 0.25;	
-	N_ii = 3;
+	N_ii = 3; // default
+	//N_ii = 10; // test
 
 	// initialise fitter
 	TFitterMinuit *minuit = new TFitterMinuit();

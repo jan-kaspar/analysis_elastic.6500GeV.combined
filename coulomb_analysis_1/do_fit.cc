@@ -124,7 +124,9 @@ int main(int argc, const char **argv)
 	hfm->t1 = t_tr1;
 	hfm->t2 = t_tr2;
 
-	hfm->phaseMode = HadronicFitModel::pmConstant;
+	hfm->phaseMode = HadronicFitModel::pmConstant; // default
+	//hfm->phaseMode = HadronicFitModel::pmBailly; hfm->p_td = -0.53; // test
+	//hfm->phaseMode = HadronicFitModel::pmStandard; hfm->p_t0 = -0.50; hfm->p_tau = 0.1; // test
 
 	hfm->modulusHighTVariant = 2;
 

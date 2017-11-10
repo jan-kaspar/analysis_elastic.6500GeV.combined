@@ -41,8 +41,9 @@
 \>>> high $|t|$ ($|t| \gs 0.4\un{GeV^2}$): fixed amplitude describing well the dip/bump structure
 \>>> medium $|t|$: smooth transition between the low- and high-$|t|$, implemented via error function
 \>> phase
-\>>> for the moment only constant is considered, only one parameter $\rh$
-\>>> TODO: try other central phases ??
+\>>> for the moment only central phases considered, only one variable parameter $\rh$
+\>>> default: constant
+\>>> tests: Bailly, standard
 
 \> Coulomb amplitude: QED OPE + experimental form factors (Puckett)
 
@@ -65,7 +66,7 @@
 \> procedure = sequence of several fit steps
 \>> number of fit steps
 \>>> default: 3
-\>>> test: TODO 10
+\>>> test: 10
 
 \>> initial point
 \>>> default: $a = 1.84E9$, $b_1 = 10.2$, $b_2 = b_3 = 0$, $\rh = 0.12$
@@ -104,8 +105,14 @@ where $i,j$ are bin indeces, $\mat V$ is the covariance matrix (depending on whi
 
 \section[results-checks]{Checks}
 
-\> 
+\> initial point
+\>> tried default, test 1 to 3: no difference in results
 
+\> number of fit steps
+\>> tried 3 and 10: no difference in results
+
+\> hadronic phase
+\>> testes: constant, Bailly, standard: no difference in results
 
 
 
