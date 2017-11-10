@@ -70,9 +70,8 @@ void InitStdDataSets()
 		ds.file_hist = "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/DS-merged/merged.root";
 		ds.obj_hist = binnings[bi] + "/merged/combined/h_dsdt";
 
-		// TODO: update !!
-		ds.file_unc = "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/systematics-old-ni/DS-fill5313/matrix_numerical_integration.root";
-		ds.obj_unc = "matrices/all-but-norm/combined/" + binnings[bi] + "/cov_mat";
+		ds.file_unc = "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/systematics/matrix.root";
+		ds.obj_unc = "matrices/all-but-norm/" + binnings[bi] + "/cov_mat";
 
 		ds.t_max = 0.25;
 		ds.norm_unc_add = 0.;
@@ -88,9 +87,8 @@ void InitStdDataSets()
 		ds.file_hist = "simu.root";
 		ds.obj_hist = "h_dsdt";
 
-		// TODO: update !!
-		ds.file_unc = "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/systematics-old-ni/DS-fill5313/matrix_numerical_integration.root";
-		ds.obj_unc = "matrices/all-but-norm/combined/" + binnings[bi] + "/cov_mat";
+		ds.file_unc = "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/systematics/matrix.root";
+		ds.obj_unc = "matrices/all-but-norm/" + binnings[bi] + "/cov_mat";
 
 		ds.t_max = 0.25;
 		ds.norm_unc_add = 0.;

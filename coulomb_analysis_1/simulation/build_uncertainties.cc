@@ -78,16 +78,7 @@ int main()
 	// defaults
 	string hist_file_name = "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/DS-merged/merged.root";
 
-	// TODO: update !!
-	string syst_file_name = "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/systematics-old-ni/DS-fill5313/matrix_numerical_integration.root";
-
-	/*
-		ds.file_hist = "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/DS-merged/merged.root";
-		ds.obj_hist = binnings[bi] + "/merged/combined/h_dsdt";
-
-		ds.file_unc = "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/systematics-old-ni/DS-fill5313/matrix_numerical_integration.root";
-		ds.obj_unc = "matrices/all-but-norm/combined/" + binnings[bi] + "/cov_mat";
-	*/
+	string syst_file_name = "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/beta2500/2rp/systematics/matrix.root";
 
 	// binnings
 	vector<string> binnings;
@@ -111,7 +102,7 @@ int main()
 		MakeRelUncHist(h_data)->Write("h_rel_stat_unc");
 
 		// systematic uncertainties
-		string path_syst = "matrices/all-but-norm/combined";
+		string path_syst = "matrices/all-but-norm";
 		TH1D *h_syst_stddev_orig = (TH1D *) f_in_syst->Get((path_syst + "/" + binning + "/h_stddev").c_str());
 		h_syst_stddev_orig->Write("h_syst_stddev_orig");
 
