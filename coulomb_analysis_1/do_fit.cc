@@ -130,7 +130,7 @@ int main(int argc, const char **argv)
 
 	hfm->modulusHighTVariant = 2;
 
-	hfm->hts = sqrt(1.06);	// takes into account recent normalisation change
+	hfm->hts = sqrt(1.045);	// takes into account recent normalisation change
 
 	string init_point_desc;
 	init_point_desc = "default"; hfm->a = 1.84E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
