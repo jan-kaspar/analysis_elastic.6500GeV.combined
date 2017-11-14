@@ -50,7 +50,7 @@ for (int ti : types.keys)
 			draw(RootGetObject(f_unc, binning + "/h_syst_stddev_regen"), "vl", red+1pt);
 
 		if (types[ti] == "norm")
-			draw((0, 0.03)--(1., 0.03), red+1pt);
+			draw((0, 0.05)--(1., 0.05), red+1pt);
 
 		if (i == 1)
 			limits((0, 0), (0.2, 0.05), Crop);
