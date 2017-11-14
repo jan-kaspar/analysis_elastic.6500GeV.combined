@@ -23,6 +23,7 @@ void PrintUsage()
 	printf("USAGE: do_fit [option] [option] ...\n");
 	printf("OPTIONS:\n");
 	printf("    -input <string>\n");
+	printf("    -t-min <float>\n");
 	printf("    -t-max <float>\n");
 	printf("    -b-degree <int>\n");
 	printf("    -use-stat-unc <bool>\n");
