@@ -9,16 +9,6 @@ make -C .. "do_fit" || exit 1
 
 #----------------------------------------------------------------------------------------------------
 
-function RunOneSet()
-{
-	for seed in `seq 1 $max_seed`
-	do
-		RunOne
-	done
-}
-
-#----------------------------------------------------------------------------------------------------
-
 function RunOne()
 {
 	local simu_dir="$dir_base/$model/$unc/norm$norm/$binning/seed$seed"
@@ -76,6 +66,16 @@ function RunOne()
 
 #----------------------------------------------------------------------------------------------------
 
+function RunOneSet()
+{
+	for seed in `seq 1 $max_seed`
+	do
+		RunOne
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+
 function RunMultiple()
 {
 	for model in ${models[@]}
@@ -100,8 +100,8 @@ function RunMultiple()
 dir_base="simu-fit-study"
 
 models=(
-	#"exp1,rho=0.10"
-	#"exp1,rho=0.14"
+	"exp1,rho=0.10"
+	"exp1,rho=0.14"
 	"exp3,rho=0.10"
 	"exp3,rho=0.14"
 )
@@ -126,7 +126,7 @@ fitRanges=(
 	"0.15"
 )
 
-#RunMultiple
+RunMultiple
 
 
 

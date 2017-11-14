@@ -69,8 +69,8 @@ function RunMultiple()
 dir_base="simu-fit-study"
 
 models=(
-	#"exp1,rho=0.10"
-	#"exp1,rho=0.14"
+	"exp1,rho=0.10"
+	"exp1,rho=0.14"
 	"exp3,rho=0.10"
 	"exp3,rho=0.14"
 )
@@ -91,7 +91,7 @@ binnings=(
 
 max_seed="100"
 
-#RunMultiple
+RunMultiple
 
 
 

@@ -97,7 +97,49 @@ where $i,j$ are bin indeces, $\mat V$ is the covariance matrix (depending on whi
 %----------------------------------------------------------------------------------------------------
 \chapter{Validation}
 
-\> TODO: MC tests
+\section[validation-mc]{Validation with MC}
+
+\> method
+\>> generate $N$ samples with realistic but identical settings
+\>> fit the $N$ samples
+\>> do statistics on the $N$ fit results: bias (mean difference fit - truth), uncertainty (fluctuation of fit - truth)
+
+\> realistic simulation
+\>> binning as in data
+\>> statistical uncertainty taken from data (final merged histogram)
+\>> systematics taken from the same matrix as used for fitting
+\>> \plot{simulation/uncertainties.pdf}: summary of uncertainties used, as function of $t$
+\>>> statistical: red
+\>>> systematic: green (as read from input), blue dashed (as obtained from the generator matrix -- control)
+
+\> truth models
+\>> exp1 and exp3, with parameters tuned to data
+\>> $\rh = 0.10$ and $0.14$
+\>> KL formula
+\>> \plot{simulation/model_example.pdf}: summary of models considered
+
+\> validation of the simulation procedure
+\>> method: generate 400 samples and extract fluctuation of each bin
+\>> results: \plot{simulation/validation.pdf}
+\>>> bias (green): compatible with zero
+\>>> RMS: in general good agreement between input (red) and simulation (blue), the small discrepancy seems to be a feature of ROOT random generator and was checked to decrease with increasing sample size
+
+\> fit bias and uncertainty
+\>> $a$ = hadronic cross-section at $t=0$
+\>> $\De$ = fit result - truth
+\>> \plot{simulation/fit_bias_uncertainty.pdf}: result summary
+\>>> bias (mean of $\De$): compatible with 0
+\>>> uncertainty (RMS of $\De$): value reasonable, increasing with increasing amount of uncertainties simulated
+
+\> additional study: impact of normalisation error on fit parameters
+\>> \plot{simulation/normalisation_error_impact.pdf}: for various truth models shows the fit bias as a function of simulated relative normalisation error
+
+
+
+
+
+
+
 
 
 %----------------------------------------------------------------------------------------------------
