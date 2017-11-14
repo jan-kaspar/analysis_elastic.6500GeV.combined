@@ -19,7 +19,7 @@ function RunOne()
 	local ae_syst="0"
 	local ae_norm="0"
 
-	local norm_sigma="0.03"
+	local norm_sigma="0.05"
 
 	t=`echo "$unc"|grep "stat"`
 	if [ -n "$t" ]; then ae_stat="1"; fi
