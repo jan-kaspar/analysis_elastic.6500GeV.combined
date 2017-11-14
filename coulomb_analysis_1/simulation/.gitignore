@@ -3,6 +3,8 @@
 *.swp
 *.swo
 
+simu-*
+
 build_models
 build_uncertainties
 process_fits
