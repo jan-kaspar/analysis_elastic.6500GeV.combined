@@ -30,6 +30,9 @@ cat "notes.tex" | sed "\
 		s|\\\\def\\\\baseDir.*$|\\\\def\\\\baseDir{.}|; \
 	" > "$release_dir/notes.tex"
 cd "$release_dir"
+touch "notes.toc"
+touch "notes.ref"
+pdftex "notes.tex"
 pdftex "notes.tex"
 
 # make tarball
@@ -44,5 +47,5 @@ rm -rf "$release_dir"
 # make latest link
 echo "    updating links..."
 cd "$base_dir" || exit 3
-rm -r "latest.tar.gz"
+rm -f "latest.tar.gz"
 ln -s "$release_file" "latest.tar.gz"
