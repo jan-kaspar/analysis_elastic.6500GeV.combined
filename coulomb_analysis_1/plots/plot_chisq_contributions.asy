@@ -7,6 +7,8 @@ string dir = "F_C+H, iteration 2";
 
 TGraph_errorBar = None;
 
+xSizeDef = 8cm;
+
 //----------------------------------------------------------------------------------------------------
 
 NewPad("eigenvector index", "$\de$");
@@ -37,6 +39,6 @@ for (int evn = 0; evn < 4; ++evn)
 frame f = BuildLegend("eigenvectors with largest contrib.~to $\ch^2$");
 
 NewPad(false);
-attach(f);
+attach(shift(60, 0) * f);
 
-//GShipout(hSkip=3mm, vSkip=0mm);
+GShipout(hSkip=3mm, vSkip=0mm);
