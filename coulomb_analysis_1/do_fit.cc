@@ -303,6 +303,8 @@ int main(int argc, const char **argv)
 
 	coulomb->mode = chosenCIMode;
 	coulomb->ffType = coulomb->ffPuckett;
+	//coulomb->ffType = coulomb->ffArrington;
+	//coulomb->ffType = coulomb->ffBorkowski;
 	coulomb->precision = 1E-3;
 	coulomb->Print();
 
