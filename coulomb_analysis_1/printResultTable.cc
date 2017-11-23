@@ -32,9 +32,9 @@ int main()
 
 	vector< vector<string> > cols = {
 		{ "t_max=0.07" },
-		{ "t_max=0.13" },
+		//{ "t_max=0.13" },
 		{ "t_max=0.15" },
-		{ "t_max=0.17" },
+		//{ "t_max=0.17" },
 	};
 
 	unsigned int width_row_id = 30;
