@@ -513,6 +513,9 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	TGraph *g_Phase_H = new TGraph(); g_Phase_H->SetName("g_Phase_H"); g_Phase_H->SetLineColor(1);
 
+	TGraph *g_ref = new TGraph(); g_ref->SetName("g_ref"); g_ref->SetLineColor(1);
+	TGraph *g_refC = new TGraph(); g_refC->SetName("g_refC"); g_refC->SetLineColor(1);
+
 	double dt = 1E-5;
 	for (double t = 0. + dt; t <= 1.; t += dt)
 	{
@@ -526,6 +529,9 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 		double y_refC = y_ref + cnts->sig_fac * coulomb->Amp_pure(-t).Rho2();
 
 		int idx = g_fit_CH->GetN();
+
+		g_ref->SetPoint(idx, t, y_ref);
+		g_refC->SetPoint(idx, t, y_refC);
 
 		coulomb->mode = chosenCIMode;
 		double si_CH = f_fit->Eval(t);
@@ -548,6 +554,9 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 		g_fit_CH_Zv->SetPoint(idx, t, (si_CH - si_C - si_H) / (si_C + si_H));
 	}
+
+	g_ref->Write();
+	g_refC->Write();
 
 	g_fit_H->Write();
 	g_fit_C->Write();
