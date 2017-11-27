@@ -209,14 +209,14 @@ double HadronicFitModel::DsigmaDTHighT(double t) const
 	// exp4+exp2
 	if (modulusHighTVariant == 1)
 	{
-		const double P0 = 6.11442e+02;
-		const double P1 = -2.07544e+01;
-		const double P2 = 1.01559e+00;
-		const double P3 = 2.23444e+01;
-		const double P4 = -9.65895e+01;
-		const double P5 = 2.89226e-04;
-		const double P6 = 1.44707e+01;
-		const double P7 = -1.09700e+01;
+		const double P0 = +6.387144E+02;
+		const double P1 = -2.082495E+01;
+		const double P2 = +1.964125E+00;
+		const double P3 = +1.648411E+01;
+		const double P4 = -8.541297E+01;
+		const double P5 = +1.200128E-05;
+		const double P6 = +2.446185E+01;
+		const double P7 = -1.852905E+01;
 
 		return P0*exp(P1*x + P2*x*x + P3*x*x*x + P4*x*x*x*x) + P5*exp(P6*x + P7*x*x);
 	}
@@ -224,14 +224,14 @@ double HadronicFitModel::DsigmaDTHighT(double t) const
 	// p1*exp3+p1*exp1
 	if (modulusHighTVariant == 2)
 	{
-		const double P0 = 6.24949e+02;
-		const double P1 = -2.56314e+02;
-		const double P2 = -2.04532e+01;
-		const double P3 = 8.49336e+00;
-		const double P4 = -1.60850e+01;
-		const double P5 = -1.11034e+01;
-		const double P6 = 2.25886e+01;
-		const double P7 = -7.02090e+00;
+		const double P0 = +6.655085E+02;
+		const double P1 = -2.219871E+02;
+		const double P2 = -2.035004E+01;
+		const double P3 = +9.070557E+00;
+		const double P4 = -1.308180E+01;
+		const double P5 = -2.436275E+01;
+		const double P6 = +4.728068E+01;
+		const double P7 = -7.875462E+00;
 
 		return (P0 + P1*x) * exp(P2*x + P3*x*x + P4*x*x*x) + (P5 + P6*x) * exp(P7*x);
 	}
@@ -239,16 +239,16 @@ double HadronicFitModel::DsigmaDTHighT(double t) const
 	// p1*exp3+p2*exp2
 	if (modulusHighTVariant == 3)
 	{
-		const double P0 = 7.16305e+02;
-		const double P1 = -2.37871e+02;
-		const double P2 = -1.96623e+01;
-		const double P3 = 9.34281e+00;
-		const double P4 = -1.50302e+01;
-		const double P5 = -1.02707e+02;
-		const double P6 = 8.08324e+01;
-		const double P7 = 2.20613e+02;
-		const double P8 = -1.29148e+01;
-		const double P9 = 3.09810e+00;
+		const double P0 = +7.431791E+02;
+		const double P1 = -2.209544E+02;
+		const double P2 = -1.964788E+01;
+		const double P3 = +1.005547E+01;
+		const double P4 = -1.448155E+01;
+		const double P5 = -1.021961E+02;
+		const double P6 = +7.063011E+01;
+		const double P7 = +2.245844E+02;
+		const double P8 = -1.211987E+01;
+		const double P9 = +2.189124E+00;
 
 		return (P0 + P1*x) * exp(P2*x + P3*x*x + P4*x*x*x) + (P5 + P6*x + P7*x*x) * exp(P8*x + P9*x*x);
 	}
@@ -256,13 +256,13 @@ double HadronicFitModel::DsigmaDTHighT(double t) const
 	// exp3-intf-exp1
 	if (modulusHighTVariant == 4)
 	{
-		const double P0 = 2.65511e+00;
-		const double P1 = 2.55649e+01;
-		const double P2 = -1.02703e+01;
-		const double P3 = 4.42715e+00;
-		const double P4 = -6.83600e+00;
-		const double P5 = 9.00437e-01;
-		const double P6 = -2.16005e+00;
+		const double P0 = +2.748913E+00;
+		const double P1 = +2.651205E+01;
+		const double P2 = -1.018483E+01;
+		const double P3 = +4.635303E+00;
+		const double P4 = -6.137818E+00;
+		const double P5 = +1.297846E+00;
+		const double P6 = -2.596459E+00;
 
 		return P1*P1*exp(2*P2*x + 2*P3*x*x + 2*P4*x*x*x) + 2 * cos(P0) * P1*exp(P2*x + P3*x*x + P4*x*x*x) * P5*exp(P6*x) + P5*P5*exp(2*P6*x);
 	}
