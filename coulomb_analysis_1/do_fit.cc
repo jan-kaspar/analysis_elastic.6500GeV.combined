@@ -26,6 +26,7 @@ void PrintUsage()
 	printf("    -t-min <float>\n");
 	printf("    -t-max <float>\n");
 	printf("    -b-degree <int>\n");
+	printf("    -htv <int>\n");
 	printf("    -use-stat-unc <bool>\n");
 	printf("    -use-syst-unc <bool>\n");
 	printf("    -output <file>\n");
@@ -49,6 +50,8 @@ int main(int argc, const char **argv)
 	double t_tr1 = 0.2;
 	double t_tr2 = 0.4;
 
+	unsigned int modulusHighTVariant = 2;
+
 	string rootOutputFileName = "do_fit.root";
 	string resultOutputFileName = "do_fit.out";
 
@@ -67,6 +70,8 @@ int main(int argc, const char **argv)
 		if (TestDoubleParameter(argc, argv, argi, "-t-max", t_max_data_coll)) continue;
 
 		if (TestUIntParameter(argc, argv, argi, "-b-degree", B_degree)) continue;
+
+		if (TestUIntParameter(argc, argv, argi, "-htv", modulusHighTVariant)) continue;
 
 		if (TestDoubleParameter(argc, argv, argi, "-t-tr1", t_tr1)) continue;
 		if (TestDoubleParameter(argc, argv, argi, "-t-tr2", t_tr2)) continue;
@@ -92,6 +97,7 @@ int main(int argc, const char **argv)
 
 	// compile input data list
 	inputData.norm_unc_global = 0.;
+	//inputData.norm_unc_global = 0.05;
 
 	char buf[300];
 	strcpy(buf, inputDataSpec.c_str());
@@ -129,9 +135,10 @@ int main(int argc, const char **argv)
 	//hfm->phaseMode = HadronicFitModel::pmBailly; hfm->p_td = -0.53; // test
 	//hfm->phaseMode = HadronicFitModel::pmStandard; hfm->p_t0 = -0.50; hfm->p_tau = 0.1; // test
 
-	hfm->modulusHighTVariant = 2;
+	hfm->modulusHighTVariant = modulusHighTVariant;
 
-	hfm->hts = sqrt(1.045);	// takes into account recent normalisation change
+	hfm->hts = sqrt(1.);
+	//hfm->hts *= 1.05;	// simulates the uncertainty of the high-|t| part
 
 	string init_point_desc;
 	init_point_desc = "default"; hfm->a = 1.84E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
@@ -222,8 +229,12 @@ int main(int argc, const char **argv)
 			double c = h->GetBinCenter(bi);
 			double l = h->GetBinLowEdge(bi);
 			double r = l + h->GetBinWidth(bi);
-			double v = h->GetBinContent(bi);
-			double v_u = h->GetBinError(bi);
+
+			const double scale_correction = 1.;
+			//const double scale_correction = 31.1 / 31.0;
+
+			double v = h->GetBinContent(bi) * scale_correction;
+			double v_u = h->GetBinError(bi) * scale_correction;
 
 			if (v == 0.)
 				continue;
