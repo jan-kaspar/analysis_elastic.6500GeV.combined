@@ -163,6 +163,21 @@ int main()
 	hfm->p0 = M_PI/2. - atan(0.14);
 	SampleModel(hfm, "exp1,rho=0.14", b_hists);
 
+	// sample exp2 models
+	hfm->a = 19.5E8;
+	hfm->b1 = 10.51;
+	hfm->b2 = 1.95;
+	hfm->b3 = 0.;
+
+	hfm->p0 = M_PI/2. - atan(0.06);
+	SampleModel(hfm, "exp2,rho=0.06", b_hists);
+
+	hfm->p0 = M_PI/2. - atan(0.10);
+	SampleModel(hfm, "exp2,rho=0.10", b_hists);
+
+	hfm->p0 = M_PI/2. - atan(0.14);
+	SampleModel(hfm, "exp2,rho=0.14", b_hists);
+
 	// sample exp3 models
 	hfm->a = 19.5E8;
 	hfm->b1 = 10.63;
