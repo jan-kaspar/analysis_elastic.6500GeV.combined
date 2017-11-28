@@ -32,13 +32,14 @@
 
 
 %----------------------------------------------------------------------------------------------------
-\chapter[modelling]{Coulomb modelling}
+\chapter[modelling]{Modelling of Coulomb-nuclear interference}
 
 \> hadronic amplitude
 \>> modulus
-\>>> low $|t|$ ($|t| \ls 0.2\un{GeV^2}$): exponential form with variable parameters $a$ and $b_n$
+\>>> low $|t|$: exponential form with variable parameters $a$ and $b_n$
 \eq{{\cal A}^{\rm N} = a \exp\left(\sum_{n = 1} b_n t^n\right)}
-\>>> high $|t|$ ($|t| \gs 0.4\un{GeV^2}$): fixed amplitude describing well the dip/bump structure
+\>>> high $|t|$: fixed amplitude describing well the dip/bump structure, 4 different parametrisations considered: \plot{high_t_part/high_t_part_fit_cmp.pdf}
+\>> the fit "fitN-1" doesn't describe the dip well and should be thus handled with caution
 \>>> medium $|t|$: smooth transition between the low- and high-$|t|$, implemented via error function
 \>> phase
 \>>> for the moment only central phases considered, only one variable parameter $\rh$
@@ -182,6 +183,7 @@ exp3, ob-3-5-0.05  &  \plot{reference_fits/ob-3-5-0.05_exp3_0.07.pdf} &  \plot{r
 
 \> hadronic modulus: uncertainty in the high $|t|$ part
 \>> scaling factor varied by $10\un{\%}$: no difference in results
+\>> different high-$|t|$ parametrisations: no difference in results
 
 
 %----------------------------------------------------------------------------------------------------
