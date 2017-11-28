@@ -4,6 +4,7 @@
 #include "TFile.h"
 #include "TH1D.h"
 #include "TF1.h"
+#include "TGraph.h"
 
 using namespace std;
 
@@ -15,6 +16,21 @@ void PrintParameters(TF1 *f)
 	{
 		printf("\t\tconst double P%i = %+E;\n", i, f->GetParameter(i));
 	}
+}
+
+//----------------------------------------------------------------------------------------------------
+
+void SaveFitGraph(TF1 *f)
+{
+	TGraph *g = new TGraph();
+	g->SetName("g_fit");
+
+	for (double t = 0.; t <= 1.0; t += 1E-3)
+	{
+		g->SetPoint(g->GetN(), t, f->Eval(t));
+	}
+
+	g->Write();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -50,6 +66,7 @@ int main()
 		h_in->Fit(ff, "", "", t_fit_min, t_fit_max);
 
 		PrintParameters(ff);
+		SaveFitGraph(ff);
 
 		h_in->Write();
 	}
@@ -72,6 +89,7 @@ int main()
 		h_in->Fit(ff, "", "", t_fit_min, t_fit_max);
 
 		PrintParameters(ff);
+		SaveFitGraph(ff);
 
 		h_in->Write();
 	}
@@ -96,6 +114,7 @@ int main()
 		h_in->Fit(ff, "", "", t_fit_min, t_fit_max);
 
 		PrintParameters(ff);
+		SaveFitGraph(ff);
 
 		h_in->Write();
 	}
@@ -117,10 +136,10 @@ int main()
 		h_in->Fit(ff, "", "", t_fit_min, t_fit_max);
 
 		PrintParameters(ff);
+		SaveFitGraph(ff);
 
 		h_in->Write();
-	}
-	
+	}	
 
 	// clean up
 	delete f_out;
