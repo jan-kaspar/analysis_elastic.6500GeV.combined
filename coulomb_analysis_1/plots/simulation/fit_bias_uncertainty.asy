@@ -66,29 +66,50 @@ void DrawOne(string configs[])
 //----------------------------------------------------------------------------------------------------
 
 string configs[] = {
-	"exp1,rho=0.10/stat/ob-2-10-0.05/tmax0.15/norm0.00",
-	"exp1,rho=0.10/stat+syst/ob-2-10-0.05/tmax0.15/norm0.00",
-	"exp1,rho=0.10/stat+syst+norm/ob-2-10-0.05/tmax0.15/norm0.00",
+	"exp1,rho=0.10/stat/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp1,rho=0.10/stat+syst/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp1,rho=0.10/stat+syst+norm/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp1,rho=0.10/norm/ob-3-5-0.05/tmax0.15/norm0.00",
 };
 DrawOne(configs);
 
 string configs[] = {
-	"exp1,rho=0.14/stat/ob-2-10-0.05/tmax0.15/norm0.00",
-	"exp1,rho=0.14/stat+syst/ob-2-10-0.05/tmax0.15/norm0.00",
-	"exp1,rho=0.14/stat+syst+norm/ob-2-10-0.05/tmax0.15/norm0.00",
+	"exp1,rho=0.14/stat/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp1,rho=0.14/stat+syst/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp1,rho=0.14/stat+syst+norm/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp1,rho=0.14/norm/ob-3-5-0.05/tmax0.15/norm0.00",
 };
 DrawOne(configs);
 
 string configs[] = {
-	"exp3,rho=0.10/stat/ob-2-10-0.05/tmax0.15/norm0.00",
-	"exp3,rho=0.10/stat+syst/ob-2-10-0.05/tmax0.15/norm0.00",
-	"exp3,rho=0.10/stat+syst+norm/ob-2-10-0.05/tmax0.15/norm0.00",
+	"exp2,rho=0.10/stat/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp2,rho=0.10/stat+syst/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp2,rho=0.10/stat+syst+norm/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp2,rho=0.10/norm/ob-3-5-0.05/tmax0.15/norm0.00",
 };
 DrawOne(configs);
 
 string configs[] = {
-	"exp3,rho=0.14/stat/ob-2-10-0.05/tmax0.15/norm0.00",
-	"exp3,rho=0.14/stat+syst/ob-2-10-0.05/tmax0.15/norm0.00",
-	"exp3,rho=0.14/stat+syst+norm/ob-2-10-0.05/tmax0.15/norm0.00",
+	"exp2,rho=0.14/stat/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp2,rho=0.14/stat+syst/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp2,rho=0.14/stat+syst+norm/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp2,rho=0.14/norm/ob-3-5-0.05/tmax0.15/norm0.00",
+};
+DrawOne(configs);
+
+
+string configs[] = {
+	"exp3,rho=0.10/stat/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp3,rho=0.10/stat+syst/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp3,rho=0.10/stat+syst+norm/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp3,rho=0.10/norm/ob-3-5-0.05/tmax0.15/norm0.00",
+};
+DrawOne(configs);
+
+string configs[] = {
+	"exp3,rho=0.14/stat/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp3,rho=0.14/stat+syst/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp3,rho=0.14/stat+syst+norm/ob-3-5-0.05/tmax0.15/norm0.00",
+	"exp3,rho=0.14/norm/ob-3-5-0.05/tmax0.15/norm0.00",
 };
 DrawOne(configs);
