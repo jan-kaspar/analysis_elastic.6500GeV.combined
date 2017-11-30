@@ -73,6 +73,10 @@ void ProcessOneGroup(const string &base_dir,
 							const double rho = v[4];
 							const double a = v[6];
 
+							// skip outliers
+							if (abs(rho - rho0) > 0.03)
+								continue;
+
 							h_de_rho->Fill(rho - rho0);
 							h_de_a->Fill(a - a0);
 
@@ -139,6 +143,8 @@ int main()
 		vector<string> models = {
 			"exp1,rho=0.10",
 			"exp1,rho=0.14",
+			"exp2,rho=0.10",
+			"exp2,rho=0.14",
 			"exp3,rho=0.10",
 			"exp3,rho=0.14",
 		};
@@ -147,6 +153,7 @@ int main()
 			"stat",
 			"stat+syst",
 			"stat+syst+norm",
+			"norm"
 		};
 
 		vector<string> norms = {
@@ -154,12 +161,13 @@ int main()
 		};
 
 		vector<string> binnings = {
-			"ob-2-10-0.05",
+			"ob-3-5-0.05",
 		};
 
 		unsigned int seed_min = 1, seed_max = 100;
 
 		vector<string> t_maxs = {
+			"0.07",
 			"0.15"
 		};
 
