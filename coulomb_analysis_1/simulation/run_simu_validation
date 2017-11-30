@@ -61,7 +61,7 @@ do
 		-binning "$binning" \
 		-apply-stat-err 0 -apply-syst-err 0 -apply-norm-err 1 \
 		-seed "$seed"\
-		-norm-unc-sigma 0.05 -norm-unc-bias 0.\
+		-norm-unc-sigma 0.055 -norm-unc-bias 0.\
 		-output "$dir/simu.root" &> "$dir/simu.log" &
 
 	dir="$dir_base/norm-bias/$seed"

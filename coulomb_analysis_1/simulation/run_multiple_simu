@@ -19,7 +19,7 @@ function RunOne()
 	local ae_syst="0"
 	local ae_norm="0"
 
-	local norm_sigma="0.05"
+	local norm_sigma="0.055"
 
 	t=`echo "$unc"|grep "stat"`
 	if [ -n "$t" ]; then ae_stat="1"; fi
@@ -71,6 +71,8 @@ dir_base="simu-fit-study"
 models=(
 	"exp1,rho=0.10"
 	"exp1,rho=0.14"
+	"exp2,rho=0.10"
+	"exp2,rho=0.14"
 	"exp3,rho=0.10"
 	"exp3,rho=0.14"
 )
@@ -79,6 +81,7 @@ uncertainties=(
 	"stat"
 	"stat+syst"
 	"stat+syst+norm"
+	"norm"
 )
 
 norms=(
@@ -134,4 +137,4 @@ binnings=(
 
 max_seed="1"
 
-RunMultiple
+#RunMultiple
