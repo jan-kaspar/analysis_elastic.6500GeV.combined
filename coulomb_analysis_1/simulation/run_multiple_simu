@@ -89,7 +89,7 @@ norms=(
 )
 
 binnings=(
-	"ob-2-10-0.05"
+	"ob-3-5-0.05"
 )
 
 max_seed="100"
