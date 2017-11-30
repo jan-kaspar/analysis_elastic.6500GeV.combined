@@ -29,6 +29,7 @@ void PrintUsage()
 	printf("    -htv <int>\n");
 	printf("    -use-stat-unc <bool>\n");
 	printf("    -use-syst-unc <bool>\n");
+	printf("    -use-norm-unc <bool>\n");
 	printf("    -output <file>\n");
 	printf("    -results <file>\n");
 }
@@ -43,6 +44,7 @@ int main(int argc, const char **argv)
 	chosenCIMode = CoulombInterference::mKL;
 	use_stat_unc = true;
 	use_syst_unc = true;
+	bool use_norm_unc = false;
 
 	double t_min_data_coll = 8E-4;
 	double t_max_data_coll = 0.17;
@@ -78,6 +80,7 @@ int main(int argc, const char **argv)
 
 		if (TestBoolParameter(argc, argv, argi, "-use-stat-unc", use_stat_unc)) continue;
 		if (TestBoolParameter(argc, argv, argi, "-use-syst-unc", use_syst_unc)) continue;
+		if (TestBoolParameter(argc, argv, argi, "-use-norm-unc", use_norm_unc)) continue;
 
 		if (TestStringParameter(argc, argv, argi, "-output", rootOutputFileName)) continue;
 		if (TestStringParameter(argc, argv, argi, "-results", resultOutputFileName)) continue;
@@ -96,8 +99,7 @@ int main(int argc, const char **argv)
 	InitStdDataSets();
 
 	// compile input data list
-	inputData.norm_unc_global = 0.;
-	//inputData.norm_unc_global = 0.05;
+	inputData.norm_unc_global = (use_norm_unc) ? 0.055 : 0.;
 
 	char buf[300];
 	strcpy(buf, inputDataSpec.c_str());
