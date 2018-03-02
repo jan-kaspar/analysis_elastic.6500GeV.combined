@@ -1,10 +1,11 @@
 import root;
 import pad_layout;
 
-//string f = "../do_fit.root";
-//string f = "fit.root";
-//string f = "../fits/2500-2rp-ob-2-10-0.05/exp1,t_max=0.07/fit.root";
-string f = "../fits/2500-2rp-ob-2-10-0.05/exp3,t_max=0.15/fit.root";
+string topDir = "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1/";
+
+//string f = "fits/2500-2rp-ob-1-20-0.05/exp3,t_max=0.15/fit.root";
+string f = "fits/2500-2rp-ob-2-10-0.05/exp3,t_max=0.15/fit.root";
+//string f = "fits/2500-2rp-ob-3-5-0.05/exp3,t_max=0.15/fit.root";
 
 xSizeDef = 10cm;
 ySizeDef = 8cm;
@@ -66,10 +67,10 @@ void PlotRelDiff(RootObject data, RootObject fit, pen p, marker m=nomarker)
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
-RootObject data_ih = RootGetObject(f, "h_input_dataset_0");
-RootObject data_unc_stat = RootGetObject(f, "g_data_coll_unc_stat");
-RootObject data_unc_full = RootGetObject(f, "g_data_coll_unc_full");
-RootObject fit = RootGetObject(f, "fit canvas|g_fit_CH");
+RootObject data_ih = RootGetObject(topDir + f, "h_input_dataset_0");
+RootObject data_unc_stat = RootGetObject(topDir + f, "g_data_coll_unc_stat");
+RootObject data_unc_full = RootGetObject(topDir + f, "g_data_coll_unc_full");
+RootObject fit = RootGetObject(topDir + f, "fit canvas|g_fit_CH");
 
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
