@@ -1,0 +1,27 @@
+#!/bin/bash
+
+fits=(
+	"fits_for_profile/def"
+	"fits_for_profile/corr1"
+	"fits_for_profile/corr2"
+)
+
+#----------------------------------------------------------------------------------------------------
+
+function RunOne()
+{
+	echo ">> $fit"
+
+	local dir="$fit"
+
+	./impactParameterDistributions "$dir/fit.root" "$dir/impactParameterDistributions.root" &> "$dir/impactParameterDistributions.log" &
+}
+
+#----------------------------------------------------------------------------------------------------
+
+make "impactParameterDistributions" || exit 1
+
+for fit in ${fits[*]}
+do
+	RunOne
+done
