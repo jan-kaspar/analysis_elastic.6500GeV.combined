@@ -41,15 +41,13 @@ int main(int argc, const char **argv)
 	// defaults
 	string inputDataSpec = "2500-2rp-ob-3-5-0.05";
 	B_degree = 3;
-	chosenCIMode = CoulombInterference::mKL;
+	chosenCIMode = CoulombInterference::mSWY;
 	use_stat_unc = true;
 	use_syst_unc = true;
 	bool use_norm_unc = false;
 
 	double t_min_data_coll = 8E-4;
 	double t_max_data_coll = 0.17;
-	
-	unsigned int bi_increment = 1;
 
 	double t_tr1 = 0.2;
 	double t_tr2 = 0.4;
@@ -73,16 +71,12 @@ int main(int argc, const char **argv)
 		if (TestDoubleParameter(argc, argv, argi, "-t-min", t_min_data_coll)) continue;
 		if (TestDoubleParameter(argc, argv, argi, "-t-max", t_max_data_coll)) continue;
 
-		if (TestUIntParameter(argc, argv, argi, "-binc", bi_increment)) continue;
-
 		if (TestUIntParameter(argc, argv, argi, "-b-degree", B_degree)) continue;
 
 		if (TestUIntParameter(argc, argv, argi, "-htv", modulusHighTVariant)) continue;
 
 		if (TestDoubleParameter(argc, argv, argi, "-t-tr1", t_tr1)) continue;
 		if (TestDoubleParameter(argc, argv, argi, "-t-tr2", t_tr2)) continue;
-
-		if (TestDoubleParameter(argc, argv, argi, "-Ap", MethodSimpleFit::A_p_value)) continue;
 
 		if (TestBoolParameter(argc, argv, argi, "-use-stat-unc", use_stat_unc)) continue;
 		if (TestBoolParameter(argc, argv, argi, "-use-syst-unc", use_syst_unc)) continue;
@@ -153,7 +147,6 @@ int main(int argc, const char **argv)
 	//init_point_desc = "test 1"; hfm->a = 1.84E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.06);
 	//init_point_desc = "test 2"; hfm->a = 1.84E9; hfm->b1 = 9.9; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
 	//init_point_desc = "test 3"; hfm->a = 1.70E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
-
 	printf(">> initial point: %s\n", init_point_desc.c_str());
 
 	model = hfm;
@@ -233,16 +226,14 @@ int main(int argc, const char **argv)
 	{
 		unsigned int dataset_points = 0;
 		TH1D *h = inputData.dataSetInfo[dsi].hist;
-
-		int bi_start_inc = 8;
-
-		for (int bi = 1; bi <= h->GetNbinsX(); bi += (bi >= bi_start_inc) ? bi_increment : 1)
+		for (int bi = 1; bi <= h->GetNbinsX(); bi++)
 		{
 			double c = h->GetBinCenter(bi);
 			double l = h->GetBinLowEdge(bi);
 			double r = l + h->GetBinWidth(bi);
 
 			const double scale_correction = 1.;
+			//const double scale_correction = 31.1 / 31.0;
 
 			double v = h->GetBinContent(bi) * scale_correction;
 			double v_u = h->GetBinError(bi) * scale_correction;
@@ -317,13 +308,6 @@ int main(int argc, const char **argv)
 
 			data_coll_rel_unc(i, j) = el_sum;
 		}
-	}
-
-	// give more weight to the low |t| points
-	for (auto &dp : data_coll)
-	{
-		if (dp.x_repr < 1.1E-3)
-			dp.y_stat_unc *= 0.10;
 	}
 
 	// initialize calculation engine

@@ -2,10 +2,10 @@
 #include "include/Elegent/CoulombInterference.h"
 
 #include "../HadronicFitModel.h"
+#include "../command_line_tools.h"
 
 #include "classes.h"
 #include "common.h"
-#include "command_line_tools.h"
 
 #include "MethodSimpleFit.h"
 
