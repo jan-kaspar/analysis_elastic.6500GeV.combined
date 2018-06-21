@@ -141,12 +141,12 @@ int main()
 		string base_dir = "simu-fit-study";
 
 		vector<string> models = {
-			"exp1,rho=0.10",
-			"exp1,rho=0.14",
-			"exp2,rho=0.10",
-			"exp2,rho=0.14",
+			//"exp1,rho=0.10",
+			//"exp1,rho=0.14",
+			//"exp2,rho=0.10",
+			//"exp2,rho=0.14",
 			"exp3,rho=0.10",
-			"exp3,rho=0.14",
+			//"exp3,rho=0.14",
 		};
 
 		vector<string> unc_modes = {
@@ -161,13 +161,14 @@ int main()
 		};
 
 		vector<string> binnings = {
+			"ob-2-10-0.05",
 			"ob-3-5-0.05",
 		};
 
 		unsigned int seed_min = 1, seed_max = 100;
 
 		vector<string> t_maxs = {
-			"0.07",
+			//"0.07",
 			"0.15"
 		};
 
