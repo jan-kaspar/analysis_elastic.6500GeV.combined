@@ -1,0 +1,193 @@
+#!/bin/bash
+
+fitTopDir="/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/"
+
+fitMethods=(
+	"coulomb_analysis_1"
+	"coulomb_analysis_1_weighted"
+	"coulomb_analysis_1_weighted_norm_lim"
+	"coulomb_analysis_1_weighted_norm_unlim"
+)
+
+fitExec="do_fit"
+
+#----------------------------------------------------------------------------------------------------
+
+for fitMethod in ${fitMethods[@]}
+do
+	make -C "$fitTopDir/$fitMethod" "do_fit" || exit 1
+done
+
+#----------------------------------------------------------------------------------------------------
+
+function RunOne()
+{
+	local simu_dir="$dir_base/$model/$unc/norm$norm/$binning/seed$seed"
+
+	local ae_stat="1"
+	local ae_syst="1"
+
+#	local t
+
+#	t=`echo "$unc"|grep "stat"`
+#	if [ -n "$t" ]; then ae_stat="1"; fi
+#
+#	t=`echo "$unc"|grep "syst"`
+#	if [ -n "$t" ]; then ae_syst="1"; fi
+#
+#	# this is also exceptional behaviour
+#	if [ "$unc" == "norm" ]; then ae_stat="1"; ae_syst="1"; fi
+#
+#	# this is an exceptional behaviour for the study of normalisation impact
+#	if [ "$unc" == "none" ]; then ae_stat="1"; ae_syst="1"; fi
+
+	echo "* $simu_dir"
+	cd "$simu_dir" || exit 1
+
+	nB="${model%,*}"
+	nB="${nB#exp}"
+	
+	local t_max=""
+	local extra_config=""
+
+	if [ "$nB" == "1" ]
+	then
+		t_max="0.07"
+		extra_config="-t-tr1 0.09 -t-tr2 0.25"
+	fi
+
+	if [ "$nB" == "3" ]
+	then
+		t_max="0.15"
+		extra_config="-t-tr1 0.17 -t-tr2 0.25"
+	fi
+
+	# loop over ranges
+	for fitMethod in ${fitMethods[@]}
+	do
+		local fit_dir="$fitMethod/exp$nB,$unc,$t_max"
+		echo "  $fit_dir"
+		mkdir -p "$fit_dir"
+
+		fitter="$fitTopDir/$fitMethod/$fitExec"
+
+		"$fitter" \
+			-input "simu-$binning" -b-degree "$nB" -t-max "$t_max" $extra_config \
+			-use-stat-unc "$ae_stat" -use-syst-unc "$ae_syst" \
+			-output "$fit_dir/fit.root" -results "$fit_dir/fit.out" \
+				&> "$fit_dir/fit.log" &
+	done
+
+	wait
+
+	cd - &> /dev/null
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function RunOneSet()
+{
+	for seed in `seq $min_seed $max_seed`
+	do
+		RunOne
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+
+function RunMultiple()
+{
+	for model in ${models[@]}
+	do
+		for unc in ${uncertainties[@]}
+		do
+			for norm in ${norms[@]}
+			do
+				for binning in ${binnings[@]}
+				do
+					RunOneSet &
+				done
+			done
+		done
+	done
+}
+
+#----------------------------------------------------------------------------------------------------
+# fit study
+#----------------------------------------------------------------------------------------------------
+
+dir_base="simu-fit-study"
+
+models=(
+	"exp1,rho=0.10"
+	#"exp1,rho=0.14"
+	#"exp2,rho=0.10"
+	#"exp2,rho=0.14"
+	"exp3,rho=0.10"
+	#"exp3,rho=0.14"
+)
+
+uncertainties=(
+	#"stat"
+	#"stat+syst"
+	"stat+syst+norm"
+	#"norm"
+)
+
+norms=(
+	"0.00"
+)
+
+binnings=(
+	"ob-2-10-0.05"
+	#"ob-3-5-0.05"
+)
+
+min_seed="301"
+max_seed="500"
+
+RunMultiple
+
+
+
+#----------------------------------------------------------------------------------------------------
+# fit-bias study as function of normalisation error
+#----------------------------------------------------------------------------------------------------
+
+dir_base="simu-norm-study"
+
+models=(
+	"exp1,rho=0.06"
+	"exp1,rho=0.10"
+	"exp1,rho=0.14"
+	"exp3,rho=0.06"
+	"exp3,rho=0.10"
+	"exp3,rho=0.14"
+)
+
+uncertainties=(
+	"none"
+)
+
+norms=(
+	"+0.10"
+	"+0.08"
+	"+0.06"
+	"+0.04"
+	"+0.02"
+	"0.00"
+	"-0.02"
+	"-0.04"
+	"-0.06"
+	"-0.08"
+	"-0.10"
+)
+
+binnings=(
+	"ob-2-10-0.05"
+)
+
+min_seed="1"
+max_seed="1"
+
+#RunMultiple
