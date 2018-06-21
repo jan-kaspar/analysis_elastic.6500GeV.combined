@@ -742,6 +742,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(13, 0., results.a);
 
 	g_fit_data->SetPoint(14, 0., si_tot);
+	g_fit_data->SetPoint(15, 0., si_tot_unc);
 
 	g_fit_data->Write("g_fit_data");
 

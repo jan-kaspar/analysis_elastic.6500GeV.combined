@@ -2,3 +2,4 @@ fits
 
 do_fit
 printResultTable
+printResultTableShort

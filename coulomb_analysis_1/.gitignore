@@ -4,3 +4,4 @@ uncertainties
 
 do_fit
 printResultTable
+printResultTableShort
