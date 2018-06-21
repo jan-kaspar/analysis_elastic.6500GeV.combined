@@ -3,7 +3,7 @@
 
 #include "classes.h"
 
-#include "command_line_tools.h"
+#include "../command_line_tools.h"
 
 #include "TFile.h"
 #include "TGraph.h"
@@ -15,7 +15,7 @@ using namespace std;
 void PrintOne(const Results &r, TGraph *g_data, char *buf)
 {
 	const double eta = g_data->GetY()[10];
-	const double eta_unc = g_data->GetY()[11];
+	//const double eta_unc = g_data->GetY()[11];
 	const double n_points = g_data->GetY()[12];
 	const double A_p = g_data->GetY()[13];
 	const double si_tot = g_data->GetY()[14];
