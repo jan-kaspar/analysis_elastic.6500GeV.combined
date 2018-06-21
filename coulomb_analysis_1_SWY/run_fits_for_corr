@@ -1,0 +1,64 @@
+#!/bin/bash
+
+datasets=(
+	"2500-2rp-ob-2-10-0.05"
+)
+
+b_degrees=(
+	#"1"
+	#"2"
+	"3"
+)
+
+t_maxs=(
+#	"0.07"
+#	"0.13"
+	"0.15"
+#	"0.17"
+)
+
+htvs=(
+	1
+	2
+	#3
+	4
+)
+
+#----------------------------------------------------------------------------------------------------
+
+make || exit 1
+
+for dataset in ${datasets[*]}
+do
+	for b_degree in ${b_degrees[*]}
+	do
+		for t_max in ${t_maxs[*]}
+		do
+			for htv in ${htvs[*]}
+			do
+				dir="fits_for_corr/$dataset/exp$b_degree,t_max=$t_max,htv=$htv"
+				mkdir -p "$dir"
+
+				echo "* $dir"
+
+				extra_config=""
+
+				if [ $t_max == "0.07" ]
+				then
+					extra_config="-t-tr1 0.05 -t-tr2 0.12"
+				fi
+
+				if [ $t_max == "0.15" ]
+				then
+					extra_config="-t-tr1 0.12 -t-tr2 0.22"
+				fi
+
+				./do_fit -input "$dataset" -b-degree "$b_degree" -t-max "$t_max" $extra_config\
+						-htv $htv\
+						-use-stat-unc 1 -use-syst-unc 1\
+						-output "$dir/fit.root" -results "$dir/fit.out" \
+					&> "$dir/fit.log" &
+			done
+		done
+	done
+done
