@@ -75,8 +75,7 @@ int main(int argc, const char **argv)
 	};
 
 	vector<Combination> combinations = {
-		{ "exp1", "2500-2rp-ob-2-10-0.05", "t_max=0.07" },
-		{ "exp3", "2500-2rp-ob-2-10-0.05", "t_max=0.15" },
+		{ "exp1", "2500-2rp-ob-2-10-0.05", "t_max=0.005" },
 	};
 
 	printf("input directory: %s\n", inputDir.c_str());

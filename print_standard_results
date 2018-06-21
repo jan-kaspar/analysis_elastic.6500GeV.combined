@@ -1,0 +1,32 @@
+#!/bin/bash
+
+function PrintOne()
+{
+	local dir_base="$1"
+	local dir_input="$2"
+
+	echo ""
+	echo "* $dir_base"
+
+	if [ "$dir_input" == "" ]
+	then
+		cd "$dir_base"
+		./printResultTableShort
+		cd - &>/dev/null
+	else
+		cd "$dir_base"
+		./printResultTableShort -input "$dir_input"
+		cd - &>/dev/null
+	fi
+}
+
+PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted"
+
+PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_lim"
+
+PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_one_ouf_of_N" "fits_binc_5"
+
+PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_one_ouf_of_N_fix_rat" "fits_binc_5"
+
+PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_B_fixed"
+
