@@ -739,7 +739,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	g_fit_data->SetPoint(12, 0., data_coll.size());
 
-	g_fit_data->SetPoint(13, 0., results.a);
+	const double A_p = cnts->sig_fac * minuit->GetParameter(0) * 1E8 * minuit->GetParameter(0) * 1E8;
+	g_fit_data->SetPoint(13, 0., A_p);
 
 	g_fit_data->SetPoint(14, 0., si_tot);
 

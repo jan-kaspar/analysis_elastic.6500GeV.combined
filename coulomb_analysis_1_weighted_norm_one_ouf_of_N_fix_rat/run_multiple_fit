@@ -1,0 +1,76 @@
+#!/bin/bash
+
+datasets=(
+#	"2500-2rp-ob-1-20-0.05"
+	"2500-2rp-ob-2-10-0.05"
+#	"2500-2rp-ob-3-5-0.05"
+)
+
+b_degrees=(
+	"1"
+	"2"
+	"3"
+)
+
+t_maxs=(
+	"0.07"
+#	"0.13"
+	"0.15"
+#	"0.17"
+)
+
+bincs=(
+	"1"
+	"2"
+	"3"
+	"5"
+	"10"
+)
+
+#----------------------------------------------------------------------------------------------------
+
+make "do_fit" || exit 1
+
+for dataset in ${datasets[*]}
+do
+	for b_degree in ${b_degrees[*]}
+	do
+		for t_max in ${t_maxs[*]}
+		do
+			for binc in ${bincs[*]}
+			do
+				dir="fits_binc_${binc}/$dataset/exp$b_degree,t_max=$t_max"
+				mkdir -p "$dir"
+
+				echo "* $dir"
+
+				extra_config=""
+
+				if [ $t_max == "0.07" ]
+				then
+					extra_config="-t-tr1 0.09 -t-tr2 0.25"
+				fi
+
+				if [ $t_max == "0.15" ]
+				then
+					extra_config="-t-tr1 0.17 -t-tr2 0.25"
+				fi
+
+				Ap="640"
+
+				if [ "${t_max},${b_degree}" == "0.07,1" ]; then Ap="643.3"; fi
+				if [ "${t_max},${b_degree}" == "0.07,2" ]; then Ap="646.2"; fi
+				if [ "${t_max},${b_degree}" == "0.07,3" ]; then Ap="644.4"; fi
+
+				if [ "${t_max},${b_degree}" == "0.15,1" ]; then Ap="635.2"; fi
+				if [ "${t_max},${b_degree}" == "0.15,2" ]; then Ap="645.6"; fi
+				if [ "${t_max},${b_degree}" == "0.15,3" ]; then Ap="648.9"; fi
+
+				./do_fit -input "$dataset" -b-degree "$b_degree" -t-max "$t_max" -binc "$binc" $extra_config\
+						-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0 -Ap "$Ap"\
+						-output "$dir/fit.root" -results "$dir/fit.out" \
+					&> "$dir/fit.log" &
+			done
+		done
+	done
+done

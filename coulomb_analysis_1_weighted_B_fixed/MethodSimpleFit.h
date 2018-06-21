@@ -378,6 +378,9 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 		minuit->SetParameter(i, buf, val, unc, lim_low, lim_high);
 	}
+	
+	minuit->SetParameter(1, "b1", 20.7/2., 0., 0., 0.);
+	minuit->FixParameter(1);
 
 	// initial point - phase
 	minuit->SetParameter(B_degree+1, "p0", hfm->p0, 0.01, p0_lim_min, p0_lim_max);
@@ -665,6 +668,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	// ------------------------------ print results for table
 
+	/*
 	double V_a_a = minuit->GetCovarianceMatrixElement(0, 0);
 	double V_a_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(0, B_degree+1) : 0.;
 	double V_p0_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(B_degree+1, B_degree+1) : 0.;
@@ -701,7 +705,6 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	printf("# -----\n");
 	printf("# p_0       = %7.3f \\pm %6.3f\n", minuit->GetParameter(B_degree+1), minuit->GetParError(B_degree+1));
 
-	/*
 	if (phaseMode == HadronicFitModel::pmPeripheral)
 	{
 		double ze1, ka, nu;
@@ -710,12 +713,12 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 		printf("# \\ka       = %7.3f\n", ka);
 		printf("# \\nu       = %7.3f\n", nu);
 	}
-	*/
 
 	printf("# -----\n");
 	printf("# \\rh       = %7.3f \\pm %6.3f\n", results.rho, sqrt(V_rho_rho));
 	printf("# \\si_{tot} = %7.3f \\pm %6.3f\n", si_tot, si_tot_unc);
 	printf("# -----\n");
+	*/
 
 	// ------------------------------ save fit data
 
@@ -739,7 +742,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	g_fit_data->SetPoint(12, 0., data_coll.size());
 
-	g_fit_data->SetPoint(13, 0., results.a);
+	const double A_p = cnts->sig_fac * minuit->GetParameter(0) * 1E8 * minuit->GetParameter(0) * 1E8;
+	g_fit_data->SetPoint(13, 0., A_p);
 
 	g_fit_data->SetPoint(14, 0., si_tot);
 

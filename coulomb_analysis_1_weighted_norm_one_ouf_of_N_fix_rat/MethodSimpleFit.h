@@ -21,10 +21,21 @@ TGraph *g_largest_cont_idx;
 
 //----------------------------------------------------------------------------------------------------
 
+double A_p_value = 630.0;
+
+double EtaFromA(double a)
+{
+	return A_p_value / (cnts->sig_fac * a * 1E8 * a * 1E8);
+}
+
+//----------------------------------------------------------------------------------------------------
+
 double F_fit(double mt, double par[])
 {
 	// transfer parameters to FitModel
 	SetModelParameters(par, false);
+
+	const double norm_corr = EtaFromA(par[par_off_a]);
 
 	// amplitude components
 	TComplex F_C = coulomb->Amp_pure(-mt);
@@ -50,7 +61,7 @@ double F_fit(double mt, double par[])
 		mt, F_C.Re(), F_C.Im(), F_H.Re(), F_H.Im(), Psi.Re(), Psi.Im(), F_T.Re(), F_T.Im(), cnts->sig_fac * F_T.Rho2());
 	*/
 
-	return cnts->sig_fac * F_T.Rho2();
+	return norm_corr * cnts->sig_fac * F_T.Rho2();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -187,6 +198,10 @@ double S2_FCN::operator() (const std::vector<double> &par) const
 			S2, S2_alt, ndf, S2 / ndf, prob, sigma_eq);
 		*/
 	}
+
+	// additional S2 contribution from normalisation
+	const double de_norm = (EtaFromA(par[par_off_a]) - 1.) / 0.055;
+	S2 += de_norm * de_norm;
 
 	return S2;
 }
@@ -330,12 +345,20 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	TDirectory *topDirectory = gDirectory;
 
+	// set parameter offsets
+	par_off_a = 0;
+	par_off_b = 1;
+	par_off_p0 = B_degree + 1;
+	par_off_pAdd = B_degree + 2;
+
+	unsigned int n_fit_parameters = B_degree + 2;
+
 	// initialize storage for interpolated Psi function
 	interpolatedPsiRe = new TGraph(); interpolatedPsiRe->SetName("interpolatedPsiRe");
 	interpolatedPsiIm = new TGraph(); interpolatedPsiIm->SetName("interpolatedPsiIm");
 
 	// initialize fit function
-	f_fit = new TF1("f_fit", f_fit_imp, 1E-5, 1., B_degree+2);
+	f_fit = new TF1("f_fit", f_fit_imp, 1E-5, 1., n_fit_parameters);
 	f_fit->SetNpx(1000);
 
 	t_max_fit = 0.25;
@@ -356,7 +379,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	// initial point - modulus
 	char buf[200];
-	minuit->SetParameter(0, "a", hfm->a / 1E8, 0.7, 0., 0.);	// without the factor 1E8
+	minuit->SetParameter(par_off_a, "a", hfm->a / 1E8, 0.7, 0., 0.);	// without the factor 1E8
 	for (unsigned int i = 1; i <= B_degree; i++)
 	{
 		sprintf(buf, "b%i", i);
@@ -376,11 +399,11 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 		if (i == 9) { val = hfm->b9; unc = 20.; lim_low = -100.; lim_high = +100.; }
 		*/
 
-		minuit->SetParameter(i, buf, val, unc, lim_low, lim_high);
+		minuit->SetParameter(par_off_b + i - 1, buf, val, unc, lim_low, lim_high);
 	}
 
 	// initial point - phase
-	minuit->SetParameter(B_degree+1, "p0", hfm->p0, 0.01, p0_lim_min, p0_lim_max);
+	minuit->SetParameter(par_off_p0, "p0", hfm->p0, 0.01, p0_lim_min, p0_lim_max);
 
 	// ------------------------------ F_C+H fits, chosen formula
 
@@ -393,10 +416,10 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	bool release_p0 = (chosenCIMode != CoulombInterference::mPH);
 	if (release_p0)
 	{
-		minuit->ReleaseParameter(B_degree+1);
+		minuit->ReleaseParameter(par_off_p0);
 		printf("* p0 released\n");
 	} else {
-		minuit->FixParameter(B_degree+1);
+		minuit->FixParameter(par_off_p0);
 		printf("* p0 fixed\n");
 	}
 
@@ -413,6 +436,10 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 			InterpolatePsi();
 			useInterpolatedPsi = true;
+		
+			// TODO: transition from D) to E)
+			const double eta = EtaFromA(minuit->GetParameter(par_off_a));
+			hfm->hts = 1./sqrt(eta);
 		}
 
 		printf("\n\n>> F_C+H, iteration %u\n", ii);
@@ -583,28 +610,17 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	hfm->Print();
 
 	coulomb->mode = coulomb->mPH;
-	double si_el = f_fit->Integral(0., 1.5);
+	double si_el = f_fit->Integral(0., 1.5);	// TODO: this can be wrong, eta is included !
 
-	double a = cnts->sig_fac * minuit->GetParameter(0) * 1E8 * minuit->GetParameter(0) * 1E8;
-	double p0 = minuit->GetParameter(B_degree+1);
+	double A = cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
+	double p0 = minuit->GetParameter(par_off_p0);
 	double rho = cos(p0) / sin(p0);
-	double si_tot = sqrt( 16.*cnts->pi * cnts->sq_hbarc / (1. + rho * rho) * a );
+	double si_tot = sqrt( 16.*cnts->pi * cnts->sq_hbarc / (1. + rho * rho) * A );
 
 	double si_inel = si_tot - si_el;
 
 	TF1 *f_t_der_amp_sq = new TF1("f_t_der_amp_sq", f_t_der_amp_sq_imp, 0., 3., 0);
-	/*
-	f_t_der_amp_sq->SetNpx(10000);
-	integrationMode = imModulus; double int_t_der_amp_sq_mod = f_t_der_amp_sq->Integral(0., 2., (double *) NULL, 1E-7); f_t_der_amp_sq->Write("f_int_mod");
-	integrationMode = imPhase; double int_t_der_amp_sq_phase = f_t_der_amp_sq->Integral(0., 2., (double *) NULL, 1E-7); f_t_der_amp_sq->Write("f_int_phase");
-	integrationMode = imFullSum; double int_t_der_amp_sq_fullsum = f_t_der_amp_sq->Integral(0., 2., (double *) NULL, 1E-7); f_t_der_amp_sq->Write("f_int_full_sum");
-	*/
 	integrationMode = imFull; double int_t_der_amp_sq_full = f_t_der_amp_sq->Integral(0., 2., (double *) NULL, 1E-7); //f_t_der_amp_sq->Write("f_int_full");
-
-	/*
-	printf("***** %E, %E, %E | %E\n", int_t_der_amp_sq_mod, int_t_der_amp_sq_phase, int_t_der_amp_sq_full,
-			int_t_der_amp_sq_mod + int_t_der_amp_sq_phase);
-	*/
 
 	double int_amp_sq = si_el / cnts->sig_fac;
 	double b_ms_el = 4. * int_t_der_amp_sq_full / int_amp_sq;
@@ -643,14 +659,14 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	results.sig = sigma_eq;
 	results.quality = results.chi_sq / results.ndf;
 
-	results.p0 = minuit->GetParameter(B_degree+1);
-	results.p0_e = minuit->GetParError(B_degree+1);
+	results.p0 = minuit->GetParameter(par_off_p0);
+	results.p0_e = minuit->GetParError(par_off_p0);
 
 	results.rho = cos(results.p0) / sin(results.p0);
 	results.rho_e = fabs(1. / sin(results.p0) / sin(results.p0)) * results.p0_e;
 
-	results.a = cnts->sig_fac * minuit->GetParameter(0) * 1E8 * minuit->GetParameter(0) * 1E8;
-	results.a_e = 2. * cnts->sig_fac * minuit->GetParameter(0) * 1E8 * minuit->GetParError(0) * 1E8;
+	results.a = cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
+	results.a_e = 2. * cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParError(par_off_a) * 1E8;
 
 	results.B = 2.*minuit->GetParameter(1);
 	results.B_e = 2.*minuit->GetParError(1);
@@ -665,9 +681,10 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	// ------------------------------ print results for table
 
-	double V_a_a = minuit->GetCovarianceMatrixElement(0, 0);
-	double V_a_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(0, B_degree+1) : 0.;
-	double V_p0_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(B_degree+1, B_degree+1) : 0.;
+	/*
+	double V_a_a = minuit->GetCovarianceMatrixElement(par_off_a, par_off_a);
+	double V_a_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(par_off_a, par_off_p0) : 0.;
+	double V_p0_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(par_off_p0, par_off_p0) : 0.;
 
 	printf("sqrt(V_a_a) = %.3f\n", sqrt(V_a_a));
 	printf("sqrt(V_p0_p0) = %.3f\n", sqrt(V_p0_p0));
@@ -697,25 +714,15 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	printf("# -----\n");
 	printf("# A         = %7.3f \\pm %6.3f\n", results.a, results.a_e);
 	for (unsigned int i = 0; i < B_degree; i++)
-		printf("# B%i        = %7.3f \\pm %6.3f\n", i+1, 2.*minuit->GetParameter(i+1), 2.*minuit->GetParError(i+1));
+		printf("# B%i        = %7.3f \\pm %6.3f\n", i+1, 2.*minuit->GetParameter(par_off_b + i), 2.*minuit->GetParError(par_off_b + i));
 	printf("# -----\n");
-	printf("# p_0       = %7.3f \\pm %6.3f\n", minuit->GetParameter(B_degree+1), minuit->GetParError(B_degree+1));
-
-	/*
-	if (phaseMode == HadronicFitModel::pmPeripheral)
-	{
-		double ze1, ka, nu;
-		PerParMineToVojtech(hfm->p_A, hfm->p_ka, hfm->p_tm, ze1, ka, nu);
-		printf("# \\ze_1     = %7.3f\n", ze1*1E4);
-		printf("# \\ka       = %7.3f\n", ka);
-		printf("# \\nu       = %7.3f\n", nu);
-	}
-	*/
+	printf("# p_0       = %7.3f \\pm %6.3f\n", minuit->GetParameter(par_off_p0), minuit->GetParError(par_off_p0));
 
 	printf("# -----\n");
 	printf("# \\rh       = %7.3f \\pm %6.3f\n", results.rho, sqrt(V_rho_rho));
 	printf("# \\si_{tot} = %7.3f \\pm %6.3f\n", si_tot, si_tot_unc);
 	printf("# -----\n");
+	*/
 
 	// ------------------------------ save fit data
 
@@ -734,12 +741,15 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(8, 0., results.B);
 	g_fit_data->SetPoint(9, 0., results.B_e);
 
-	g_fit_data->SetPoint(10, 0., 1.);
+	double eta = EtaFromA(minuit->GetParameter(par_off_a));
+
+	g_fit_data->SetPoint(10, 0., eta);
 	g_fit_data->SetPoint(11, 0., 0.);
 
 	g_fit_data->SetPoint(12, 0., data_coll.size());
 
-	g_fit_data->SetPoint(13, 0., results.a);
+	const double A_p = eta * cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
+	g_fit_data->SetPoint(13, 0., A_p);
 
 	g_fit_data->SetPoint(14, 0., si_tot);
 
