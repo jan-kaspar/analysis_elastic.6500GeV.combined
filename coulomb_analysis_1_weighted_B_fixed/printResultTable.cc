@@ -1,8 +1,7 @@
 #include <vector>
 #include <string>
 
-#include "classes.h"
-
+#include "../classes.h"
 #include "../command_line_tools.h"
 
 #include "TFile.h"
