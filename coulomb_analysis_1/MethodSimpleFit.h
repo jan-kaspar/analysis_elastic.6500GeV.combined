@@ -60,10 +60,15 @@ double F_fit(double mt, double par[])
 	if (coulomb->mode == coulomb->mPH)
 		F_T = F_H;
 
-	TComplex Psi;
-	if (coulomb->mode == coulomb->mKL || coulomb->mode == coulomb->mSWY)
+	if (coulomb->mode == coulomb->mKL)
 	{
-		Psi = (useInterpolatedPsi) ? TComplex(interpolatedPsiRe->Eval(mt), interpolatedPsiIm->Eval(mt)) : - coulomb->Phi_SWY(-mt);
+		const TComplex Psi = (useInterpolatedPsi) ? TComplex(interpolatedPsiRe->Eval(mt), interpolatedPsiIm->Eval(mt)) : - coulomb->Phi_SWY(-mt);
+		F_T = F_C + F_H * TComplex::Exp(i*Psi);
+	}
+
+	if (coulomb->mode == coulomb->mSWY)
+	{
+		const TComplex Psi = - coulomb->Phi_SWY(-mt);
 		F_T = F_C + F_H * TComplex::Exp(i*Psi);
 	}
 
