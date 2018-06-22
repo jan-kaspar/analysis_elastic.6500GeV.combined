@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "../common.sh"
+
 datasets=(
 #	"2500-2rp-ob-1-20-0.05"
 	"2500-2rp-ob-2-10-0.05"
@@ -35,18 +37,7 @@ do
 			echo "* $dir"
 
 			extra_config=""
-
-			if [ $t_max == "0.07" ]
-			then
-				#extra_config="-t-tr1 0.05 -t-tr2 0.12"
-				extra_config="-t-tr1 0.09 -t-tr2 0.25"
-			fi
-
-			if [ $t_max == "0.15" ]
-			then
-				#extra_config="-t-tr1 0.12 -t-tr2 0.22"
-				extra_config="-t-tr1 0.17 -t-tr2 0.25"
-			fi
+			SetStandardExtraConfig
 
 			../do_fit -input "$dataset" -b-degree "$b_degree" -t-max "$t_max" $extra_config\
 					-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
