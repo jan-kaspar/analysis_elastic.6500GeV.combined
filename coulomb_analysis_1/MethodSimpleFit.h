@@ -675,6 +675,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	double a = cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
 	double p0 = minuit->GetParameter(par_off_p0);
 	double rho = cos(p0) / sin(p0);
+
 	double si_tot = sqrt( 16.*cnts->pi * cnts->sq_hbarc / (1. + rho * rho) * a );
 
 	double si_inel = si_tot - si_el;
@@ -750,59 +751,37 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	results.b_rms_inel = b_rms_inel;
 	results.b_rms_tot = b_rms_tot;
 
-	// ------------------------------ print results for table
+	// ------------------------------ error propagation
 
-	/*
-	double V_a_a = minuit->GetCovarianceMatrixElement(par_off_a, par_off_a);
-	double V_a_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(par_off_a, par_off_p0) : 0.;
-	double V_p0_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(par_off_p0, par_off_p0) : 0.;
+	// indices in GetCovarianceMatrixElement function refer only to non-fixed parameters
+	int par_uncoff_p0 = par_off_p0;
+	if (useB1Fixed)
+		par_uncoff_p0--;
 
-	printf("sqrt(V_a_a) = %.3f\n", sqrt(V_a_a));
+	double V_pa_pa = minuit->GetCovarianceMatrixElement(par_off_a, par_off_a);
+	double V_pa_p0 = minuit->GetCovarianceMatrixElement(par_off_a, par_uncoff_p0);
+	double V_p0_p0 = minuit->GetCovarianceMatrixElement(par_uncoff_p0, par_uncoff_p0);
+
+	printf("sqrt(V_pa_pa) = %.3f\n", sqrt(V_pa_pa));
 	printf("sqrt(V_p0_p0) = %.3f\n", sqrt(V_p0_p0));
-	printf("correlation a and p0 = %.3f\n", V_a_p0 / sqrt(V_a_a) / sqrt(V_p0_p0));
+	printf("correlation pa and p0 = %.3f\n", V_pa_p0 / sqrt(V_pa_pa) / sqrt(V_p0_p0));
 
-	double sc_A = 2. * cnts->sig_fac * minuit->GetParameter(0) * 1E8 * 1E8;
+	double sc_a = 2. * cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * 1E8;
 	double sc_rho = 1. / sin(results.p0) / sin(results.p0);
 
-	double V_A_A = sc_A * V_a_a * sc_A;
-	double V_A_rho = sc_A * V_a_p0 * sc_rho;
+	double V_a_a = sc_a * V_pa_pa * sc_a;
+	double V_a_rho = sc_a * V_pa_p0 * sc_rho;
 	double V_rho_rho = sc_rho * V_p0_p0 * sc_rho;
 
-	printf("sqrt(V_A_A) = %.3f\n", sqrt(V_A_A));
+	printf("sqrt(V_a_a) = %.3f\n", sqrt(V_a_a));
 	printf("sqrt(V_rho_rho) = %.3f\n", sqrt(V_rho_rho));
-	printf("correlation A and rho = %.3f\n", V_A_rho / sqrt(V_A_A) / sqrt(V_rho_rho));
+	printf("correlation a and rho = %.3f\n", V_a_rho / sqrt(V_a_a) / sqrt(V_rho_rho));
 
-	double der_A = si_tot/2. * 1./results.a;
+	double der_a = si_tot/2. * 1./results.a;
 	double der_rho = si_tot/2. * 2.*results.rho / (1. + results.rho*results.rho);
 
-	double V_si_tot = der_A * V_A_A * der_A + 2.* der_A * V_A_rho * der_rho + der_rho * V_rho_rho * der_rho;
+	double V_si_tot = der_a * V_a_a * der_a + 2.* der_a * V_a_rho * der_rho + der_rho * V_rho_rho * der_rho;
 	double si_tot_unc = sqrt(V_si_tot);
-
-	printf("\n");
-	printf("Fit summary:\n");
-	printf("# -----\n");
-	printf("# \\ch^2/ndf = %.1f / %i = %.3f\n", results.chi_sq, results.ndf, results.chi_sq / results.ndf);
-	printf("# -----\n");
-	printf("# A         = %7.3f \\pm %6.3f\n", results.a, results.a_e);
-	for (unsigned int i = 0; i < B_degree; i++)
-		printf("# B%i        = %7.3f \\pm %6.3f\n", i+1, 2.*minuit->GetParameter(par_off_b + i), 2.*minuit->GetParError(par_off_b + i));
-	printf("# -----\n");
-	printf("# p_0       = %7.3f \\pm %6.3f\n", minuit->GetParameter(par_off_p0), minuit->GetParError(par_off_p0));
-
-	if (phaseMode == HadronicFitModel::pmPeripheral)
-	{
-		double ze1, ka, nu;
-		PerParMineToVojtech(hfm->p_A, hfm->p_ka, hfm->p_tm, ze1, ka, nu);
-		printf("# \\ze_1     = %7.3f\n", ze1*1E4);
-		printf("# \\ka       = %7.3f\n", ka);
-		printf("# \\nu       = %7.3f\n", nu);
-	}
-
-	printf("# -----\n");
-	printf("# \\rh       = %7.3f \\pm %6.3f\n", results.rho, sqrt(V_rho_rho));
-	printf("# \\si_{tot} = %7.3f \\pm %6.3f\n", si_tot, si_tot_unc);
-	printf("# -----\n");
-	*/
 
 	// ------------------------------ save fit data
 
@@ -840,8 +819,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(13, 0., A_p);
 
 	g_fit_data->SetPoint(14, 0., si_tot);
-	// TODO: uncomment
-	//g_fit_data->SetPoint(15, 0., si_tot_unc);
+	g_fit_data->SetPoint(15, 0., si_tot_unc);
 
 	g_fit_data->Write("g_fit_data");
 
