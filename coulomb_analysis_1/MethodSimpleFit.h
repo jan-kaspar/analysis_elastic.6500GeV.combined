@@ -450,8 +450,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	
 	if (useB1Fixed)
 	{
-		minuit->SetParameter(1, "b1", b1_value_fix, 0., 0., 0.);
-		minuit->FixParameter(1);
+		minuit->SetParameter(par_off_b, "b1", b1_value_fix, 0., 0., 0.);
+		minuit->FixParameter(par_off_b);
 	}
 
 	// initial point - phase
@@ -739,8 +739,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	results.a = cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
 	results.a_e = 2. * cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParError(par_off_a) * 1E8;
 
-	results.B = 2.*minuit->GetParameter(1);
-	results.B_e = 2.*minuit->GetParError(1);
+	results.B = 2.*minuit->GetParameter(par_off_b);
+	results.B_e = 2.*minuit->GetParError(par_off_b);
 
 	results.si_el = si_el;
 	results.si_inel = si_inel;
