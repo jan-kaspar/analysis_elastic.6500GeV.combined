@@ -127,11 +127,11 @@ double p_ka_lim_min, p_ka_lim_max;
 double p_tm_lim_min, p_tm_lim_max;
 
 // parameter offsets
-unsigned int par_off_norm;
-unsigned int par_off_a;
-unsigned int par_off_b;
-unsigned int par_off_p0;
-unsigned int par_off_pAdd;
+signed int par_off_norm;
+signed int par_off_a;
+signed int par_off_b;
+signed int par_off_p0;
+signed int par_off_pAdd;
 
 //----------------------------------------------------------------------------------------------------
 

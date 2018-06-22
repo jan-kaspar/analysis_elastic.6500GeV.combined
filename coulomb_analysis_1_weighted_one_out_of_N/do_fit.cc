@@ -4,8 +4,7 @@
 #include "../HadronicFitModel.h"
 #include "../command_line_tools.h"
 #include "../classes.h"
-
-#include "common.h"
+#include "../common.h"
 
 #include "MethodSimpleFit.h"
 

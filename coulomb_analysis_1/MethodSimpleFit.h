@@ -330,12 +330,21 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	TDirectory *topDirectory = gDirectory;
 
+	// set parameter offsets
+	par_off_norm = -1;
+	par_off_a = 0;
+	par_off_b = 1;
+	par_off_p0 = B_degree + 1;
+	par_off_pAdd = B_degree + 2;
+
+	unsigned int n_fit_parameters = B_degree + 2;
+
 	// initialize storage for interpolated Psi function
 	interpolatedPsiRe = new TGraph(); interpolatedPsiRe->SetName("interpolatedPsiRe");
 	interpolatedPsiIm = new TGraph(); interpolatedPsiIm->SetName("interpolatedPsiIm");
 
 	// initialize fit function
-	f_fit = new TF1("f_fit", f_fit_imp, 1E-5, 1., B_degree+2);
+	f_fit = new TF1("f_fit", f_fit_imp, 1E-5, 1., n_fit_parameters);
 	f_fit->SetNpx(1000);
 
 	t_max_fit = 0.25;
@@ -356,7 +365,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	// initial point - modulus
 	char buf[200];
-	minuit->SetParameter(0, "a", hfm->a / 1E8, 0.7, 0., 0.);	// without the factor 1E8
+	minuit->SetParameter(par_off_a, "a", hfm->a / 1E8, 0.7, 0., 0.);	// without the factor 1E8
 	for (unsigned int i = 1; i <= B_degree; i++)
 	{
 		sprintf(buf, "b%i", i);
@@ -376,11 +385,11 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 		if (i == 9) { val = hfm->b9; unc = 20.; lim_low = -100.; lim_high = +100.; }
 		*/
 
-		minuit->SetParameter(i, buf, val, unc, lim_low, lim_high);
+		minuit->SetParameter(par_off_b + i - 1, buf, val, unc, lim_low, lim_high);
 	}
 
 	// initial point - phase
-	minuit->SetParameter(B_degree+1, "p0", hfm->p0, 0.01, p0_lim_min, p0_lim_max);
+	minuit->SetParameter(par_off_p0, "p0", hfm->p0, 0.01, p0_lim_min, p0_lim_max);
 
 	// ------------------------------ F_C+H fits, chosen formula
 
@@ -393,10 +402,10 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	bool release_p0 = (chosenCIMode != CoulombInterference::mPH);
 	if (release_p0)
 	{
-		minuit->ReleaseParameter(B_degree+1);
+		minuit->ReleaseParameter(par_off_p0);
 		printf("* p0 released\n");
 	} else {
-		minuit->FixParameter(B_degree+1);
+		minuit->FixParameter(par_off_p0);
 		printf("* p0 fixed\n");
 	}
 
@@ -585,8 +594,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	coulomb->mode = coulomb->mPH;
 	double si_el = f_fit->Integral(0., 1.5);
 
-	double a = cnts->sig_fac * minuit->GetParameter(0) * 1E8 * minuit->GetParameter(0) * 1E8;
-	double p0 = minuit->GetParameter(B_degree+1);
+	double a = cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
+	double p0 = minuit->GetParameter(par_off_p0);
 	double rho = cos(p0) / sin(p0);
 	double si_tot = sqrt( 16.*cnts->pi * cnts->sq_hbarc / (1. + rho * rho) * a );
 
@@ -643,14 +652,14 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	results.sig = sigma_eq;
 	results.quality = results.chi_sq / results.ndf;
 
-	results.p0 = minuit->GetParameter(B_degree+1);
-	results.p0_e = minuit->GetParError(B_degree+1);
+	results.p0 = minuit->GetParameter(par_off_p0);
+	results.p0_e = minuit->GetParError(par_off_p0);
 
 	results.rho = cos(results.p0) / sin(results.p0);
 	results.rho_e = fabs(1. / sin(results.p0) / sin(results.p0)) * results.p0_e;
 
-	results.a = cnts->sig_fac * minuit->GetParameter(0) * 1E8 * minuit->GetParameter(0) * 1E8;
-	results.a_e = 2. * cnts->sig_fac * minuit->GetParameter(0) * 1E8 * minuit->GetParError(0) * 1E8;
+	results.a = cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
+	results.a_e = 2. * cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParError(par_off_a) * 1E8;
 
 	results.B = 2.*minuit->GetParameter(1);
 	results.B_e = 2.*minuit->GetParError(1);
@@ -665,9 +674,10 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	// ------------------------------ print results for table
 
-	double V_a_a = minuit->GetCovarianceMatrixElement(0, 0);
-	double V_a_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(0, B_degree+1) : 0.;
-	double V_p0_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(B_degree+1, B_degree+1) : 0.;
+	/*
+	double V_a_a = minuit->GetCovarianceMatrixElement(par_off_a, par_off_a);
+	double V_a_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(par_off_a, par_off_p0) : 0.;
+	double V_p0_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(par_off_p0, par_off_p0) : 0.;
 
 	printf("sqrt(V_a_a) = %.3f\n", sqrt(V_a_a));
 	printf("sqrt(V_p0_p0) = %.3f\n", sqrt(V_p0_p0));
@@ -697,11 +707,10 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	printf("# -----\n");
 	printf("# A         = %7.3f \\pm %6.3f\n", results.a, results.a_e);
 	for (unsigned int i = 0; i < B_degree; i++)
-		printf("# B%i        = %7.3f \\pm %6.3f\n", i+1, 2.*minuit->GetParameter(i+1), 2.*minuit->GetParError(i+1));
+		printf("# B%i        = %7.3f \\pm %6.3f\n", i+1, 2.*minuit->GetParameter(par_off_b + i), 2.*minuit->GetParError(par_off_b + i));
 	printf("# -----\n");
-	printf("# p_0       = %7.3f \\pm %6.3f\n", minuit->GetParameter(B_degree+1), minuit->GetParError(B_degree+1));
+	printf("# p_0       = %7.3f \\pm %6.3f\n", minuit->GetParameter(par_off_p0), minuit->GetParError(par_off_p0));
 
-	/*
 	if (phaseMode == HadronicFitModel::pmPeripheral)
 	{
 		double ze1, ka, nu;
@@ -710,12 +719,12 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 		printf("# \\ka       = %7.3f\n", ka);
 		printf("# \\nu       = %7.3f\n", nu);
 	}
-	*/
 
 	printf("# -----\n");
 	printf("# \\rh       = %7.3f \\pm %6.3f\n", results.rho, sqrt(V_rho_rho));
 	printf("# \\si_{tot} = %7.3f \\pm %6.3f\n", si_tot, si_tot_unc);
 	printf("# -----\n");
+	*/
 
 	// ------------------------------ save fit data
 
@@ -742,7 +751,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(13, 0., results.a);
 
 	g_fit_data->SetPoint(14, 0., si_tot);
-	g_fit_data->SetPoint(15, 0., si_tot_unc);
+	// TODO: uncomment
+	//g_fit_data->SetPoint(15, 0., si_tot_unc);
 
 	g_fit_data->Write("g_fit_data");
 
