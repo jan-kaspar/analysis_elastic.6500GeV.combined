@@ -1,0 +1,32 @@
+#!/bin/bash
+
+function PrintOne()
+{
+	local dir="$1"
+	local options="$2"
+
+	echo ""
+	echo "* $dir"
+
+	./printResultSummary -input "$dir" $options
+}
+
+#PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted"
+#PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_lim"
+#PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_one_ouf_of_N" "fits_binc_5"
+#PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_one_ouf_of_N_fix_rat" "fits_binc_5"
+#PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_B_fixed"
+
+defaultOptions="-add-fit 2500-2rp-ob-2-10-0.05/exp1,t_max=0.07 -add-fit 2500-2rp-ob-2-10-0.05/exp3,t_max=0.15"
+
+PrintOne "default/fits" "$defaultOptions"
+PrintOne "SWY/fits" "$defaultOptions"
+PrintOne "weighted/fits" "$defaultOptions"
+PrintOne "weighted_B_fixed/fits" "-add-fit 2500-2rp-ob-2-10-0.05/exp1,t_max=0.005"
+PrintOne "weighted_norm_B_fixed/fits" "-add-fit 2500-2rp-ob-2-10-0.05/exp1,t_max=0.005"
+PrintOne "weighted_norm_lim/fits" "$defaultOptions"
+PrintOne "weighted_norm_one_ouf_of_N/fits_binc_5" "$defaultOptions"
+PrintOne "weighted_norm_one_ouf_of_N_fix_rat/fits_binc_5" "$defaultOptions"
+PrintOne "weighted_norm_unconstrained/fits" "$defaultOptions"
+PrintOne "weighted_norm_unlim/fits" "$defaultOptions"
+PrintOne "weighted_one_out_of_N/fits_binc_5" "$defaultOptions"

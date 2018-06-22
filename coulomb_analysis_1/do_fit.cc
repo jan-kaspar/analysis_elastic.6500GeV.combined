@@ -3,8 +3,8 @@
 
 #include "../HadronicFitModel.h"
 #include "../command_line_tools.h"
-#include "../classes.h"
-#include "../common.h"
+#include "classes.h"
+#include "common.h"
 
 #include "MethodSimpleFit.h"
 
@@ -22,14 +22,23 @@ void PrintUsage()
 	printf("USAGE: do_fit [option] [option] ...\n");
 	printf("OPTIONS:\n");
 	printf("    -input <string>\n");
+
 	printf("    -t-min <float>\n");
 	printf("    -t-max <float>\n");
 	printf("    -binc <integer>\n");
+
 	printf("    -b-degree <int>\n");
 	printf("    -htv <int>\n");
 	printf("    -use-stat-unc <bool>\n");
 	printf("    -use-syst-unc <bool>\n");
 	printf("    -use-norm-unc <bool>\n");
+
+	printf("    -cni-formula <string>              choice of CNI formula (KL or SWY)\n");
+
+	printf("    -reweight-low-t-points <bool>      whether low-|t| points should be reweighted\n");
+
+	// TODO: add -Ap
+
 	printf("    -output <file>\n");
 	printf("    -results <file>\n");
 }
@@ -41,7 +50,7 @@ int main(int argc, const char **argv)
 	// defaults
 	string inputDataSpec = "2500-2rp-ob-3-5-0.05";
 	B_degree = 3;
-	chosenCIMode = CoulombInterference::mKL;
+	string cniFormula = "KL";
 	use_stat_unc = true;
 	use_syst_unc = true;
 	bool use_norm_unc = false;
@@ -55,6 +64,10 @@ int main(int argc, const char **argv)
 	double t_tr2 = 0.4;
 
 	unsigned int modulusHighTVariant = 2;
+
+	bool reweight_low_t_points = false;
+
+	double A_p_value;
 
 	string rootOutputFileName = "do_fit.root";
 	string resultOutputFileName = "do_fit.out";
@@ -85,6 +98,12 @@ int main(int argc, const char **argv)
 		if (TestBoolParameter(argc, argv, argi, "-use-stat-unc", use_stat_unc)) continue;
 		if (TestBoolParameter(argc, argv, argi, "-use-syst-unc", use_syst_unc)) continue;
 		if (TestBoolParameter(argc, argv, argi, "-use-norm-unc", use_norm_unc)) continue;
+
+		if (TestStringParameter(argc, argv, argi, "-cni-formula", cniFormula)) continue;
+
+		if (TestBoolParameter(argc, argv, argi, "-reweight-low-t-points", reweight_low_t_points)) continue;
+
+		if (TestDoubleParameter(argc, argv, argi, "-Ap", A_p_value)) continue;
 
 		if (TestStringParameter(argc, argv, argi, "-output", rootOutputFileName)) continue;
 		if (TestStringParameter(argc, argv, argi, "-results", resultOutputFileName)) continue;
@@ -154,6 +173,16 @@ int main(int argc, const char **argv)
 	printf(">> initial point: %s\n", init_point_desc.c_str());
 
 	model = hfm;
+
+	// validate CNI mode
+	if (cniFormula == "KL")
+		chosenCIMode = CoulombInterference::mKL;
+	else if (cniFormula == "SWY")
+		chosenCIMode = CoulombInterference::mSWY;
+	else {
+		printf("ERROR: unknown CNI formula '%s'.\n", cniFormula.c_str());
+		return 1;
+	}
 
 	// print settings
 	printf(">> settings\n");
@@ -315,6 +344,16 @@ int main(int argc, const char **argv)
 			}
 
 			data_coll_rel_unc(i, j) = el_sum;
+		}
+	}
+
+	// give more weight to the low |t| points
+	if (reweight_low_t_points)
+	{
+		for (auto &dp : data_coll)
+		{
+			if (dp.x_repr < 1.1E-3)
+				dp.y_stat_unc *= 0.10;
 		}
 	}
 

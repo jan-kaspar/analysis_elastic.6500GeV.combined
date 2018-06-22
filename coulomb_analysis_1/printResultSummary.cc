@@ -1,8 +1,8 @@
 #include <vector>
 #include <string>
 
-#include "../classes.h"
 #include "../command_line_tools.h"
+#include "classes.h"
 
 #include "TFile.h"
 #include "TGraph.h"
@@ -34,7 +34,8 @@ void PrintUsage()
 {
 	printf("USAGE: printResultTableShort [option] ...\n");
 	printf("OPTIONS:\n");
-	printf("    -input <directory>    select input directory\n");
+	printf("    -input <directory>     select input directory\n");
+	printf("    -add-fit <string>      add fit to output\n");
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -42,7 +43,9 @@ void PrintUsage()
 int main(int argc, const char **argv)
 {
 	// default parameters
-	string inputDir = "fits";
+	string inputDir = "";
+
+	vector<string> fits;
 
 	// parse command line
 	for (int argi = 1; (argi < argc) && (cl_error == 0); ++argi)
@@ -54,6 +57,12 @@ int main(int argc, const char **argv)
 		}
 
 		if (TestStringParameter(argc, argv, argi, "-input", inputDir)) continue;
+
+		if (strcmp(argv[argi], "-add-fit") == 0)
+		{
+			fits.push_back(argv[++argi]);
+			continue;
+		}
 		
 		printf("ERROR: unknown option '%s'.\n", argv[argi]);
 		cl_error = 1;
@@ -65,24 +74,10 @@ int main(int argc, const char **argv)
 		return 1;
 	}
 
-	// define combinations
-	struct Combination
+	// print fit data
+	for (const auto &f : fits)
 	{
-		string expN;
-		string binning;
-		string tRange;
-	};
-
-	vector<Combination> combinations = {
-		{ "exp1", "2500-2rp-ob-2-10-0.05", "t_max=0.07" },
-		{ "exp3", "2500-2rp-ob-2-10-0.05", "t_max=0.15" },
-	};
-
-	printf("input directory: %s\n", inputDir.c_str());
-
-	for (const auto &c : combinations)
-	{
-		string dir = inputDir + "/" + c.binning + "/" + c.expN + "," + c.tRange;
+		string dir = inputDir + "/" + f;
 
 		string file = dir + "/fit.out";
 		Results r;
@@ -90,9 +85,15 @@ int main(int argc, const char **argv)
 
 		file = dir + "/fit.root";
 		TFile *f_in = TFile::Open(file.c_str());
+		if (f_in == NULL)
+		{
+			printf("ERROR\n");
+			continue;
+		}
+
 		TGraph *g_fit_data = (TGraph *) f_in->Get("g_fit_data");
 
-		printf("%s, %s, %s: ", c.expN.c_str(), c.binning.c_str(), c.tRange.c_str());
+		printf("%s: ", f.c_str());
 		PrintOne(r, g_fit_data);
 		printf("\n");
 
