@@ -21,7 +21,7 @@ t_maxs=(
 
 #----------------------------------------------------------------------------------------------------
 
-make "do_fit" || exit 1
+#make -C .. "do_fit" || exit 1
 
 for dataset in ${datasets[*]}
 do
@@ -46,8 +46,9 @@ do
 				extra_config="-t-tr1 0.12 -t-tr2 0.22"
 			fi
 
-			./do_fit -input "$dataset" -b-degree "$b_degree" -t-max "$t_max" $extra_config\
+			../do_fit -input "$dataset" -b-degree "$b_degree" -t-max "$t_max" $extra_config\
 					-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 1\
+					-reweight-low-t-points 1\
 					-output "$dir/fit.root" -results "$dir/fit.out" \
 				&> "$dir/fit.log" &
 		done

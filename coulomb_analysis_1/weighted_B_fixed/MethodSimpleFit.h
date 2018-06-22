@@ -388,8 +388,11 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 		minuit->SetParameter(par_off_b + i - 1, buf, val, unc, lim_low, lim_high);
 	}
 	
-	minuit->SetParameter(1, "b1", 20.7/2., 0., 0., 0.);
-	minuit->FixParameter(1);
+	if (useB1Fixed)
+	{
+		minuit->SetParameter(1, "b1", b1_value_fix, 0., 0., 0.);
+		minuit->FixParameter(1);
+	}
 
 	// initial point - phase
 	minuit->SetParameter(par_off_p0, "p0", hfm->p0, 0.01, p0_lim_min, p0_lim_max);

@@ -29,7 +29,7 @@ bincs=(
 
 #----------------------------------------------------------------------------------------------------
 
-make "do_fit" || exit 1
+#make -C .. "do_fit" || exit 1
 
 for dataset in ${datasets[*]}
 do
@@ -66,8 +66,10 @@ do
 				if [ "${t_max},${b_degree}" == "0.15,2" ]; then Ap="645.6"; fi
 				if [ "${t_max},${b_degree}" == "0.15,3" ]; then Ap="648.9"; fi
 
-				./do_fit -input "$dataset" -b-degree "$b_degree" -t-max "$t_max" -binc "$binc" $extra_config\
-						-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0 -Ap "$Ap"\
+				../do_fit -input "$dataset" -b-degree "$b_degree" -t-max "$t_max" -binc "$binc" $extra_config\
+						-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
+						-reweight-low-t-points 1\
+						-use-normalisation-from-a -Ap-value "$Ap"\
 						-output "$dir/fit.root" -results "$dir/fit.out" \
 					&> "$dir/fit.log" &
 			done
