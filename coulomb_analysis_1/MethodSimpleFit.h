@@ -4,6 +4,15 @@
 namespace MethodSimpleFit
 {
 
+bool useNormalisationFitParameter;
+bool useNormalisationChiSqTerm;
+bool useNormalisationConstraint;
+bool useNormalisationFromA;
+double A_p_value_fix;
+
+bool useB1Fixed;
+double b1_value_fix;
+
 bool useInterpolatedPsi;
 
 double t_min_fit, t_max_fit;
@@ -21,10 +30,23 @@ TGraph *g_largest_cont_idx;
 
 //----------------------------------------------------------------------------------------------------
 
+double EtaFromA(double a)
+{
+	return A_p_value_fix / (cnts->sig_fac * a * 1E8 * a * 1E8);
+}
+
+//----------------------------------------------------------------------------------------------------
+
 double F_fit(double mt, double par[])
 {
 	// transfer parameters to FitModel
 	SetModelParameters(par, false);
+
+	double norm_corr = 1.;
+	if (useNormalisationFitParameter)
+		norm_corr = par[par_off_norm];
+	if (useNormalisationFromA)
+		norm_corr = EtaFromA(par[par_off_a]);
 
 	// amplitude components
 	TComplex F_C = coulomb->Amp_pure(-mt);
@@ -50,7 +72,7 @@ double F_fit(double mt, double par[])
 		mt, F_C.Re(), F_C.Im(), F_H.Re(), F_H.Im(), Psi.Re(), Psi.Im(), F_T.Re(), F_T.Im(), cnts->sig_fac * F_T.Rho2());
 	*/
 
-	return cnts->sig_fac * F_T.Rho2();
+	return norm_corr * cnts->sig_fac * F_T.Rho2();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -186,6 +208,19 @@ double S2_FCN::operator() (const std::vector<double> &par) const
 		printf("\t\tS2 = %.3E, S2_alt = %.3E; ndf = %i, S2 / ndf = %.3f; Prob(S2, ndf) = %.2E (%.2f sigmas)\n",
 			S2, S2_alt, ndf, S2 / ndf, prob, sigma_eq);
 		*/
+	}
+
+	// additional S2 contribution from normalisation
+	if (useNormalisationChiSqTerm)
+	{
+		double norm_corr = 1.;
+		if (useNormalisationFitParameter)
+			norm_corr = par[par_off_norm];
+		if (useNormalisationFromA)
+			norm_corr = EtaFromA(par[par_off_a]);
+
+		const double de_norm = (norm_corr - 1.) / 0.055;
+		S2 += de_norm * de_norm;
 	}
 
 	return S2;
@@ -331,13 +366,24 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	TDirectory *topDirectory = gDirectory;
 
 	// set parameter offsets
-	par_off_norm = -1;
-	par_off_a = 0;
-	par_off_b = 1;
-	par_off_p0 = B_degree + 1;
-	par_off_pAdd = B_degree + 2;
+	unsigned int n_fit_parameters = 0;
 
-	unsigned int n_fit_parameters = B_degree + 2;
+	if (useNormalisationFitParameter)
+	{
+		par_off_norm = 0;
+		par_off_a = 1;
+		par_off_b = 2;
+		par_off_p0 = B_degree + 2;
+		par_off_pAdd = B_degree + 3;
+		n_fit_parameters = B_degree + 3;
+	} else {
+		par_off_norm = -1;
+		par_off_a = 0;
+		par_off_b = 1;
+		par_off_p0 = B_degree + 1;
+		par_off_pAdd = B_degree + 2;
+		n_fit_parameters = B_degree + 2;
+	}
 
 	// initialize storage for interpolated Psi function
 	interpolatedPsiRe = new TGraph(); interpolatedPsiRe->SetName("interpolatedPsiRe");
@@ -363,6 +409,15 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	double m_chi2, m_edm, m_errdef;
 	int m_n_par_var, m_n_par_tot, m_ndf;
 
+	// initial point - normalisation
+	if (useNormalisationFitParameter)
+	{
+		if (useNormalisationConstraint)
+			minuit->SetParameter(par_off_norm, "eta", 1., 0.01, 1. - 0.055, 1. + 0.055);
+		else
+			minuit->SetParameter(par_off_norm, "eta", 1., 0.01, 0., 0.);
+	}
+
 	// initial point - modulus
 	char buf[200];
 	minuit->SetParameter(par_off_a, "a", hfm->a / 1E8, 0.7, 0., 0.);	// without the factor 1E8
@@ -386,6 +441,12 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 		*/
 
 		minuit->SetParameter(par_off_b + i - 1, buf, val, unc, lim_low, lim_high);
+	}
+	
+	if (useB1Fixed)
+	{
+		minuit->SetParameter(1, "b1", b1_value_fix, 0., 0., 0.);
+		minuit->FixParameter(1);
 	}
 
 	// initial point - phase
@@ -422,6 +483,17 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 			InterpolatePsi();
 			useInterpolatedPsi = true;
+
+			if (useNormalisationFitParameter)
+			{
+				double norm_corr = 1.;
+				if (useNormalisationFitParameter)
+					norm_corr = minuit->GetParameter(par_off_norm);
+				if (useNormalisationFromA)
+					norm_corr = EtaFromA(minuit->GetParameter(par_off_a));
+
+				hfm->hts = 1./sqrt(norm_corr);
+			}
 		}
 
 		printf("\n\n>> F_C+H, iteration %u\n", ii);
@@ -592,6 +664,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	hfm->Print();
 
 	coulomb->mode = coulomb->mPH;
+	// TODO: this can be wrong, eta is included !
 	double si_el = f_fit->Integral(0., 1.5);
 
 	double a = cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
@@ -743,12 +816,22 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(8, 0., results.B);
 	g_fit_data->SetPoint(9, 0., results.B_e);
 
-	g_fit_data->SetPoint(10, 0., 1.);
-	g_fit_data->SetPoint(11, 0., 0.);
+	double eta = 1., eta_unc = 0.;
+	if (useNormalisationFitParameter)
+	{
+		eta = minuit->GetParameter(par_off_norm);
+		eta_unc = minuit->GetParError(par_off_norm);
+	}
+	if (useNormalisationFromA)
+	{
+		eta = EtaFromA(minuit->GetParameter(par_off_a));
+	}
+	g_fit_data->SetPoint(10, 0., eta);
+	g_fit_data->SetPoint(11, 0., eta_unc);
 
 	g_fit_data->SetPoint(12, 0., data_coll.size());
 
-	const double A_p = cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
+	const double A_p = eta * cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
 	g_fit_data->SetPoint(13, 0., A_p);
 
 	g_fit_data->SetPoint(14, 0., si_tot);

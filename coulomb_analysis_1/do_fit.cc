@@ -37,7 +37,14 @@ void PrintUsage()
 
 	printf("    -reweight-low-t-points <bool>      whether low-|t| points should be reweighted\n");
 
-	// TODO: add -Ap
+	printf("    -use-normalisation-fit-parameter\n");
+	printf("    -use-normalisation-chisq-term\n");
+	printf("    -use-normalisation-constraint\n");
+	printf("    -use-normalisation-from-a\n");
+	printf("    -Ap-value\n");
+
+	printf("    -use-b1-fixed\n");
+	printf("    -b1-value\n");
 
 	printf("    -output <file>\n");
 	printf("    -results <file>\n");
@@ -67,7 +74,14 @@ int main(int argc, const char **argv)
 
 	bool reweight_low_t_points = false;
 
-	double A_p_value;
+	MethodSimpleFit::useNormalisationFitParameter = false;
+	MethodSimpleFit::useNormalisationChiSqTerm = false;
+	MethodSimpleFit::useNormalisationConstraint = false;
+	MethodSimpleFit::useNormalisationFromA = false;
+	MethodSimpleFit::A_p_value_fix = 0.;
+
+	MethodSimpleFit::useB1Fixed = false;
+	MethodSimpleFit::b1_value_fix = 0.;
 
 	string rootOutputFileName = "do_fit.root";
 	string resultOutputFileName = "do_fit.out";
@@ -103,7 +117,14 @@ int main(int argc, const char **argv)
 
 		if (TestBoolParameter(argc, argv, argi, "-reweight-low-t-points", reweight_low_t_points)) continue;
 
-		if (TestDoubleParameter(argc, argv, argi, "-Ap", A_p_value)) continue;
+		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-fit-parameter", MethodSimpleFit::useNormalisationFitParameter)) continue;
+		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-chisq-term", MethodSimpleFit::useNormalisationChiSqTerm)) continue;
+		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-constraint", MethodSimpleFit::useNormalisationConstraint)) continue;
+		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-from-a", MethodSimpleFit::useNormalisationFromA)) continue;
+		if (TestDoubleParameter(argc, argv, argi, "-Ap-value", MethodSimpleFit::A_p_value_fix)) continue;
+		
+		if (TestBoolParameter(argc, argv, argi, "-use-b1-fixed", MethodSimpleFit::useB1Fixed)) continue;
+		if (TestDoubleParameter(argc, argv, argi, "-b1-value", MethodSimpleFit::b1_value_fix)) continue;
 
 		if (TestStringParameter(argc, argv, argi, "-output", rootOutputFileName)) continue;
 		if (TestStringParameter(argc, argv, argi, "-results", resultOutputFileName)) continue;
