@@ -346,6 +346,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	TDirectory *topDirectory = gDirectory;
 
 	// set parameter offsets
+	par_off_norm = -1;
 	par_off_a = 0;
 	par_off_b = 1;
 	par_off_p0 = B_degree + 1;
@@ -612,15 +613,26 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	coulomb->mode = coulomb->mPH;
 	double si_el = f_fit->Integral(0., 1.5);	// TODO: this can be wrong, eta is included !
 
-	double A = cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
+	double a = cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
 	double p0 = minuit->GetParameter(par_off_p0);
 	double rho = cos(p0) / sin(p0);
-	double si_tot = sqrt( 16.*cnts->pi * cnts->sq_hbarc / (1. + rho * rho) * A );
+	double si_tot = sqrt( 16.*cnts->pi * cnts->sq_hbarc / (1. + rho * rho) * a );
 
 	double si_inel = si_tot - si_el;
 
 	TF1 *f_t_der_amp_sq = new TF1("f_t_der_amp_sq", f_t_der_amp_sq_imp, 0., 3., 0);
+	/*
+	f_t_der_amp_sq->SetNpx(10000);
+	integrationMode = imModulus; double int_t_der_amp_sq_mod = f_t_der_amp_sq->Integral(0., 2., (double *) NULL, 1E-7); f_t_der_amp_sq->Write("f_int_mod");
+	integrationMode = imPhase; double int_t_der_amp_sq_phase = f_t_der_amp_sq->Integral(0., 2., (double *) NULL, 1E-7); f_t_der_amp_sq->Write("f_int_phase");
+	integrationMode = imFullSum; double int_t_der_amp_sq_fullsum = f_t_der_amp_sq->Integral(0., 2., (double *) NULL, 1E-7); f_t_der_amp_sq->Write("f_int_full_sum");
+	*/
 	integrationMode = imFull; double int_t_der_amp_sq_full = f_t_der_amp_sq->Integral(0., 2., (double *) NULL, 1E-7); //f_t_der_amp_sq->Write("f_int_full");
+
+	/*
+	printf("***** %E, %E, %E | %E\n", int_t_der_amp_sq_mod, int_t_der_amp_sq_phase, int_t_der_amp_sq_full,
+			int_t_der_amp_sq_mod + int_t_der_amp_sq_phase);
+	*/
 
 	double int_amp_sq = si_el / cnts->sig_fac;
 	double b_ms_el = 4. * int_t_der_amp_sq_full / int_amp_sq;
@@ -718,6 +730,15 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	printf("# -----\n");
 	printf("# p_0       = %7.3f \\pm %6.3f\n", minuit->GetParameter(par_off_p0), minuit->GetParError(par_off_p0));
 
+	if (phaseMode == HadronicFitModel::pmPeripheral)
+	{
+		double ze1, ka, nu;
+		PerParMineToVojtech(hfm->p_A, hfm->p_ka, hfm->p_tm, ze1, ka, nu);
+		printf("# \\ze_1     = %7.3f\n", ze1*1E4);
+		printf("# \\ka       = %7.3f\n", ka);
+		printf("# \\nu       = %7.3f\n", nu);
+	}
+
 	printf("# -----\n");
 	printf("# \\rh       = %7.3f \\pm %6.3f\n", results.rho, sqrt(V_rho_rho));
 	printf("# \\si_{tot} = %7.3f \\pm %6.3f\n", si_tot, si_tot_unc);
@@ -742,7 +763,6 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(9, 0., results.B_e);
 
 	double eta = EtaFromA(minuit->GetParameter(par_off_a));
-
 	g_fit_data->SetPoint(10, 0., eta);
 	g_fit_data->SetPoint(11, 0., 0.);
 
@@ -752,6 +772,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(13, 0., A_p);
 
 	g_fit_data->SetPoint(14, 0., si_tot);
+	// TODO: uncomment
+	//g_fit_data->SetPoint(15, 0., si_tot_unc);
 
 	g_fit_data->Write("g_fit_data");
 

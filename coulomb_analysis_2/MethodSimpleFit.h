@@ -683,6 +683,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 
 	// ------------------------------ print results for table
 
+	/*
 	double V_a_a = minuit->GetCovarianceMatrixElement(par_off_a, par_off_a);
 	double V_a_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(par_off_a, par_off_p0) : 0.;
 	double V_p0_p0 = (release_p0) ? minuit->GetCovarianceMatrixElement(par_off_p0, par_off_p0) : 0.;
@@ -719,7 +720,6 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	printf("# -----\n");
 	printf("# p_0       = %7.3f \\pm %6.3f\n", minuit->GetParameter(par_off_p0), minuit->GetParError(par_off_p0));
 
-	/*
 	if (phaseMode == HadronicFitModel::pmPeripheral)
 	{
 		double ze1, ka, nu;
@@ -728,12 +728,12 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 		printf("# \\ka       = %7.3f\n", ka);
 		printf("# \\nu       = %7.3f\n", nu);
 	}
-	*/
 
 	printf("# -----\n");
 	printf("# \\rh       = %7.3f \\pm %6.3f\n", results.rho, sqrt(V_rho_rho));
 	printf("# \\si_{tot} = %7.3f \\pm %6.3f\n", si_tot, si_tot_unc);
 	printf("# -----\n");
+	*/
 
 	// ------------------------------ save fit data
 
@@ -743,7 +743,6 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(2, 0., prob);
 	g_fit_data->SetPoint(3, 0., sigma_eq);
 
-	// TODO
 	g_fit_data->SetPoint(4, 0., results.rho);
 	g_fit_data->SetPoint(5, 0., results.rho_e);
 
@@ -753,18 +752,17 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(8, 0., results.B);
 	g_fit_data->SetPoint(9, 0., results.B_e);
 
-	/*
-	g_fit_data->SetPoint(, 0., si_tot);
-	g_fit_data->SetPoint(, 0., si_tot_e);
+	g_fit_data->SetPoint(10, 0., 1.);
+	g_fit_data->SetPoint(11, 0., 0.);
 
-	g_fit_data->SetPoint(4, 0., si_el);
-	g_fit_data->SetPoint(5, 0., si_inel);
-	g_fit_data->SetPoint(6, 0., si_tot);
+	g_fit_data->SetPoint(12, 0., data_coll.size());
 
-	g_fit_data->SetPoint(7, 0., b_rms_el);
-	g_fit_data->SetPoint(8, 0., b_rms_inel);
-	g_fit_data->SetPoint(9, 0., b_rms_tot);
-	*/
+	const double A_p = cnts->sig_fac * minuit->GetParameter(par_off_a) * 1E8 * minuit->GetParameter(par_off_a) * 1E8;
+	g_fit_data->SetPoint(13, 0., A_p);
+
+	g_fit_data->SetPoint(14, 0., si_tot);
+	// TODO: uncomment
+	//g_fit_data->SetPoint(15, 0., si_tot_
 
 	g_fit_data->Write("g_fit_data");
 
