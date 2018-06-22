@@ -20,13 +20,20 @@ function PrintOne()
 	fi
 }
 
-PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted"
+#PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted"
+#PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_lim"
+#PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_one_ouf_of_N" "fits_binc_5"
+#PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_one_ouf_of_N_fix_rat" "fits_binc_5"
+#PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_B_fixed"
 
-PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_lim"
-
-PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_one_ouf_of_N" "fits_binc_5"
-
-PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_one_ouf_of_N_fix_rat" "fits_binc_5"
-
-PrintOne "/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1_weighted_norm_B_fixed"
-
+PrintOne "coulomb_analysis_1"
+PrintOne "coulomb_analysis_1_SWY"
+PrintOne "coulomb_analysis_1_weighted"
+PrintOne "coulomb_analysis_1_weighted_B_fixed"
+PrintOne "coulomb_analysis_1_weighted_norm_B_fixed"
+PrintOne "coulomb_analysis_1_weighted_norm_lim"
+PrintOne "coulomb_analysis_1_weighted_norm_one_ouf_of_N"  "fits_binc_5"
+PrintOne "coulomb_analysis_1_weighted_norm_one_ouf_of_N_fix_rat"  "fits_binc_5"
+PrintOne "coulomb_analysis_1_weighted_norm_unconstrained"
+PrintOne "coulomb_analysis_1_weighted_norm_unlim"
+PrintOne "coulomb_analysis_1_weighted_one_out_of_N"  "fits_binc_5"
