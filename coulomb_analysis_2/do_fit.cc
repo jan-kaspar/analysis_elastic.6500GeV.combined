@@ -24,6 +24,7 @@ void PrintUsage()
 	printf("    -input <string>\n");
 	printf("    -t-min <float>\n");
 	printf("    -t-max <float>\n");
+	printf("    -binc <integer>\n");
 	printf("    -b-degree <int>\n");
 	printf("    -htv <int>\n");
 	printf("    -use-stat-unc <bool>\n");
@@ -47,6 +48,8 @@ int main(int argc, const char **argv)
 
 	double t_min_data_coll = 8E-4;
 	double t_max_data_coll = 0.17;
+	
+	unsigned int bi_increment = 1;
 
 	double t_tr1 = 0.2;
 	double t_tr2 = 0.4;
@@ -69,6 +72,8 @@ int main(int argc, const char **argv)
 		
 		if (TestDoubleParameter(argc, argv, argi, "-t-min", t_min_data_coll)) continue;
 		if (TestDoubleParameter(argc, argv, argi, "-t-max", t_max_data_coll)) continue;
+
+		if (TestUIntParameter(argc, argv, argi, "-binc", bi_increment)) continue;
 
 		if (TestUIntParameter(argc, argv, argi, "-b-degree", B_degree)) continue;
 
@@ -157,6 +162,7 @@ int main(int argc, const char **argv)
 	printf("    phaseMode = %u\n", phaseMode);
 	printf("    use_stat_unc = %i, use_syst_unc = %i\n", use_stat_unc, use_syst_unc);
 	printf("    t_min_data_coll = %.2E, t_max_data_coll = %.2E\n", t_min_data_coll, t_max_data_coll);
+	printf("    bi_increment = %u\n", bi_increment);
 
 	// prepare output
 	TFile *f_out = new TFile(rootOutputFileName.c_str(), "recreate");
@@ -225,7 +231,10 @@ int main(int argc, const char **argv)
 	{
 		unsigned int dataset_points = 0;
 		TH1D *h = inputData.dataSetInfo[dsi].hist;
-		for (int bi = 1; bi <= h->GetNbinsX(); bi++)
+
+		int bi_start_inc = 8;
+
+		for (int bi = 1; bi <= h->GetNbinsX(); bi += (bi >= bi_start_inc) ? bi_increment : 1)
 		{
 			double c = h->GetBinCenter(bi);
 			double l = h->GetBinLowEdge(bi);

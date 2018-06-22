@@ -24,6 +24,7 @@ void PrintUsage()
 	printf("    -input <string>\n");
 	printf("    -t-min <float>\n");
 	printf("    -t-max <float>\n");
+	printf("    -binc <integer>\n");
 	printf("    -b-degree <int>\n");
 	printf("    -htv <int>\n");
 	printf("    -use-stat-unc <bool>\n");
@@ -152,7 +153,6 @@ int main(int argc, const char **argv)
 	//init_point_desc = "test 1"; hfm->a = 1.84E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.06);
 	//init_point_desc = "test 2"; hfm->a = 1.84E9; hfm->b1 = 9.9; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
 	//init_point_desc = "test 3"; hfm->a = 1.70E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
-
 	printf(">> initial point: %s\n", init_point_desc.c_str());
 
 	model = hfm;
@@ -164,6 +164,7 @@ int main(int argc, const char **argv)
 	printf("    phaseMode = %u\n", phaseMode);
 	printf("    use_stat_unc = %i, use_syst_unc = %i\n", use_stat_unc, use_syst_unc);
 	printf("    t_min_data_coll = %.2E, t_max_data_coll = %.2E\n", t_min_data_coll, t_max_data_coll);
+	printf("    bi_increment = %u\n", bi_increment);
 
 	// prepare output
 	TFile *f_out = new TFile(rootOutputFileName.c_str(), "recreate");
@@ -242,6 +243,7 @@ int main(int argc, const char **argv)
 			double r = l + h->GetBinWidth(bi);
 
 			const double scale_correction = 1.;
+			//const double scale_correction = 31.1 / 31.0;
 
 			double v = h->GetBinContent(bi) * scale_correction;
 			double v_u = h->GetBinError(bi) * scale_correction;
