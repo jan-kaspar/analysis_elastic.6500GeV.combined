@@ -51,7 +51,7 @@ do
 			../do_fit -input "$dataset" -b-degree "$b_degree" -t-max "$t_max" $extra_config\
 					-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
 					-reweight-low-t-points 1\
-					-use-normalisation-fit-parameter 1 -use-normalisation-chisq-term 0 -use-normalisation-constraint 0\
+					-use-normalisation-fit-parameter 1 -use-normalisation-chisq-term 0 -use-normalisation-limit 0\
 					-output "$dir/fit.root" -results "$dir/fit.out" \
 				&> "$dir/fit.log" &
 		done

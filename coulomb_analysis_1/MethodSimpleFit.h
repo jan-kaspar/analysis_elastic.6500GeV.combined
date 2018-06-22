@@ -6,7 +6,7 @@ namespace MethodSimpleFit
 
 bool useNormalisationFitParameter;
 bool useNormalisationChiSqTerm;
-bool useNormalisationConstraint;
+bool useNormalisationLimit;
 bool useNormalisationFromA;
 double A_p_value_fix;
 
@@ -412,7 +412,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	// initial point - normalisation
 	if (useNormalisationFitParameter)
 	{
-		if (useNormalisationConstraint)
+		if (useNormalisationLimit)
 			minuit->SetParameter(par_off_norm, "eta", 1., 0.01, 1. - 0.055, 1. + 0.055);
 		else
 			minuit->SetParameter(par_off_norm, "eta", 1., 0.01, 0., 0.);

@@ -39,7 +39,7 @@ void PrintUsage()
 
 	printf("    -use-normalisation-fit-parameter\n");
 	printf("    -use-normalisation-chisq-term\n");
-	printf("    -use-normalisation-constraint\n");
+	printf("    -use-normalisation-limit\n");
 	printf("    -use-normalisation-from-a\n");
 	printf("    -Ap-value\n");
 
@@ -76,7 +76,7 @@ int main(int argc, const char **argv)
 
 	MethodSimpleFit::useNormalisationFitParameter = false;
 	MethodSimpleFit::useNormalisationChiSqTerm = false;
-	MethodSimpleFit::useNormalisationConstraint = false;
+	MethodSimpleFit::useNormalisationLimit = false;
 	MethodSimpleFit::useNormalisationFromA = false;
 	MethodSimpleFit::A_p_value_fix = 0.;
 
@@ -119,7 +119,7 @@ int main(int argc, const char **argv)
 
 		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-fit-parameter", MethodSimpleFit::useNormalisationFitParameter)) continue;
 		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-chisq-term", MethodSimpleFit::useNormalisationChiSqTerm)) continue;
-		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-constraint", MethodSimpleFit::useNormalisationConstraint)) continue;
+		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-limit", MethodSimpleFit::useNormalisationLimit)) continue;
 		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-from-a", MethodSimpleFit::useNormalisationFromA)) continue;
 		if (TestDoubleParameter(argc, argv, argi, "-Ap-value", MethodSimpleFit::A_p_value_fix)) continue;
 		
