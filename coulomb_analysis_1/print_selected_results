@@ -1,0 +1,35 @@
+#!/bin/bash
+
+function PrintOne()
+{
+	local dir="$1"
+	local options="$2"
+
+	echo "$dir"
+
+	./printResultSummary -input "$dir" $options
+}
+
+defaultOptions="-add-fit 2500-2rp-ob-2-10-0.05/exp1,t_max=0.07 -add-fit 2500-2rp-ob-2-10-0.05/exp3,t_max=0.15"
+
+# TODO: discrepancy
+echo -ne "\n>> step 1: "
+PrintOne "weighted/fits" "$defaultOptions"
+
+echo -ne "\n>> step pre-pre-2: "
+PrintOne "weighted_norm_cons_lim/fits" "$defaultOptions"
+
+echo -ne "\n>> step pre-2: "
+PrintOne "weighted_norm_cons_unlim_1ofN/fits_binc_5" "$defaultOptions"
+
+echo -ne "\n>> step 2: "
+PrintOne "weighted_norm_fix_rat_cons_1ofN/fits_binc_5" "$defaultOptions"
+
+echo -ne "\n>> step pre-pre-3: "
+PrintOne "weighted_norm_cons_unlim_B_fixed/fits" "-add-fit 2500-2rp-ob-2-10-0.05/exp1,t_max=0.005"
+
+echo -ne "\n>> step pre-3: "
+PrintOne "weighted_norm_uncons_unlim_B_fixed/fits" "-add-fit 2500-2rp-ob-2-10-0.05/exp1,t_max=0.005"
+
+echo -ne "\n>> step 3: "
+PrintOne "weighted_norm_fix_rat_B_fixed/fits" "-add-fit 2500-2rp-ob-2-10-0.05/exp1,t_max=0.005"
