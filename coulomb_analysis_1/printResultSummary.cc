@@ -13,18 +13,19 @@ using namespace std;
 
 void PrintOne(const Results &r, TGraph *g_data)
 {
-	//const double eta = g_data->GetY()[10];
-	//const double eta_unc = g_data->GetY()[11];
+	const double eta = g_data->GetY()[10];
+	const double eta_unc = g_data->GetY()[11];
 	const double n_points = g_data->GetY()[12];
 	const double A_p = g_data->GetY()[13];
 	const double si_tot = g_data->GetY()[14];
 	const double si_tot_unc = g_data->GetY()[15];
 
-	printf("rho=%.4f+-%.4f, si_tot=%.2f+-%.2f mb, n_points=%3.0f, chisq/ndf=%.2f, dsigma_H/dt|0=%.1f mb/GeV^2",
+	printf("rho=%.4f+-%.4f, si_tot=%.2f+-%.2f mb, n_points=%3.0f, chisq/ndf=%.2f, A'=%.1f mb/GeV^2, eta=%.3f+-%.3f",
 		r.rho, r.rho_e,
 		si_tot, si_tot_unc,
 		n_points, r.chi_sq_norm,
-		A_p
+		A_p,
+		eta, eta_unc
 	);
 }
 
