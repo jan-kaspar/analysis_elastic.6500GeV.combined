@@ -63,6 +63,7 @@ do
 						-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
 						-reweight-low-t-points 1\
 						-use-normalisation-from-a 1 -Ap-value "$Ap"\
+						-use-normalisation-chisq-term 1 \
 						-output "$dir/fit.root" -results "$dir/fit.out" \
 					&> "$dir/fit.log" &
 			done

@@ -21,6 +21,7 @@ PrintOne "weighted_norm_cons_unlim_B_fixed/fits" "-add-fit 2500-2rp-ob-2-10-0.05
 PrintOne "weighted_norm_cons_lim/fits" "$defaultOptions"
 PrintOne "weighted_norm_cons_unlim_1ofN/fits_binc_5" "$defaultOptions"
 PrintOne "weighted_norm_fix_rat_1ofN/fits_binc_5" "$defaultOptions"
+PrintOne "weighted_norm_fix_rat_cons_1ofN/fits_binc_5" "$defaultOptions"
 PrintOne "weighted_norm_uncons_unlim/fits" "$defaultOptions"
 PrintOne "weighted_norm_cons_unlim/fits" "$defaultOptions"
 PrintOne "weighted_1ofN/fits_binc_5" "$defaultOptions"
