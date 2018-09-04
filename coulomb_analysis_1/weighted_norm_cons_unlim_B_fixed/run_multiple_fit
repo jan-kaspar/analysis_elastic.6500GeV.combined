@@ -43,7 +43,7 @@ do
 					-reweight-low-t-points 1\
 					-use-b1-fixed 1 -b1-value 10.35\
 					-use-normalisation-fit-parameter 1 -use-normalisation-chisq-term 1 -use-normalisation-limit 0\
-					-output "$dir/fit.root" -results "$dir/fit.out" \
+					-output "$dir/fit.root" -results "$dir/fit.out" -tex "$dir/fit.tex" \
 				&> "$dir/fit.log" &
 		done
 	done

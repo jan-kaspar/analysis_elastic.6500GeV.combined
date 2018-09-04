@@ -85,6 +85,7 @@ int main(int argc, const char **argv)
 
 	string rootOutputFileName = "do_fit.root";
 	string resultOutputFileName = "do_fit.out";
+	string texOutputFileName = "do_fit.tex";
 
 	// parse command line
 	for (int argi = 1; (argi < argc) && (cl_error == 0); ++argi)
@@ -128,6 +129,7 @@ int main(int argc, const char **argv)
 
 		if (TestStringParameter(argc, argv, argi, "-output", rootOutputFileName)) continue;
 		if (TestStringParameter(argc, argv, argi, "-results", resultOutputFileName)) continue;
+		if (TestStringParameter(argc, argv, argi, "-tex", texOutputFileName)) continue;
 
 		printf("ERROR: unknown option '%s'.\n", argv[argi]);
 		cl_error = 1;
@@ -410,12 +412,15 @@ int main(int argc, const char **argv)
 	printf("\tp_ka_lim_min=%.3f, p_ka_lim_max=%.3f\n", p_ka_lim_min, p_ka_lim_max);
 	printf("\tp_tm_lim_min=%.3f, p_tm_lim_max=%.3f\n", p_tm_lim_min, p_tm_lim_max);
 
+	// prepare ouput tex file
+	FILE *f_out_tex = fopen(texOutputFileName.c_str(), "w");
+
 	// execute fit
 	Results r;
 	unsigned int ec = 100;
 	
 	string method_settings = "";
-	ec = MethodSimpleFit::RunFit(method_settings, r);
+	ec = MethodSimpleFit::RunFit(method_settings, r, f_out_tex);
 
 	if (ec == 0)
 	{
@@ -426,6 +431,9 @@ int main(int argc, const char **argv)
 		printf("\n>> ERROR in RunFit: code = %u\n", ec);
 	}
 
+	// clean up
+	fclose(f_out_tex);
 	delete f_out;
+
 	return 0;
 }

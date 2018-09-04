@@ -362,7 +362,7 @@ void AnalyzeCompatibilityWithZero(const TVectorD &val, const TMatrixD &cov)
 
 //----------------------------------------------------------------------------------------------------
 
-unsigned int RunFit(const string & /*settings*/, Results &results)
+unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_tex)
 {
 	printf(">> MethodSimpleFit::RunFit\n");
 
@@ -822,6 +822,20 @@ unsigned int RunFit(const string & /*settings*/, Results &results)
 	g_fit_data->SetPoint(15, 0., si_tot_unc);
 
 	g_fit_data->Write("g_fit_data");
+
+	// ------------------------------ save fit data in TeX format
+
+	fprintf(f_out_tex, "$n_{\\rm points} = %lu$, $\\chi^2/\\hbox{ndf} = %.3f$ \\\\ \n", data_coll.size(), m_chi2 / m_ndf);
+	fprintf(f_out_tex, "$\\rho = %.4f \\pm %.4f$, $\\si_{\\rm tot} = (%.2f \\pm %.2f)\\un{mb}$, $A' = %.1f\\un{mb/GeV^2}$, $\\eta = %.3f \\pm %.3f$ \\\\ \n",
+		results.rho, results.rho_e, si_tot, si_tot_unc, A_p, eta, eta_unc);
+
+	for (unsigned int i = 0; i < n_fit_parameters; ++i)
+	{
+		if (i > 0)
+			fprintf(f_out_tex, ", ");
+
+		fprintf(f_out_tex, "%u/%s = %.3E $\\pm$ %.3E\n", i, minuit->GetParName(i), minuit->GetParameter(i), minuit->GetParError(i));
+	}
 
 	return 0;
 }

@@ -42,7 +42,7 @@ do
 					-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
 					-reweight-low-t-points 1\
 					-use-b1-fixed 1 -b1-value 10.35\
-					-output "$dir/fit.root" -results "$dir/fit.out" \
+					-output "$dir/fit.root" -results "$dir/fit.out" -tex "$dir/fit.tex" \
 				&> "$dir/fit.log" &
 		done
 	done

@@ -51,7 +51,7 @@ do
 
 			../do_fit -input "$dataset" -b-degree "$b_degree" -t-max "$t_max" $extra_config\
 					-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
-					-output "$dir/fit.root" -results "$dir/fit.out" \
+					-output "$dir/fit.root" -results "$dir/fit.out" -tex "$dir/fit.tex" \
 				&> "$dir/fit.log" &
 		done
 	done
