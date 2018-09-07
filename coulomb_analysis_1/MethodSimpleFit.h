@@ -489,16 +489,16 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 			InterpolatePsi();
 			useInterpolatedPsi = true;
 
-			if (useNormalisationFitParameter)
-			{
-				double norm_corr = 1.;
-				if (useNormalisationFitParameter)
-					norm_corr = minuit->GetParameter(par_off_norm);
-				if (useNormalisationFromA)
-					norm_corr = EtaFromA(minuit->GetParameter(par_off_a));
+			// update high |t| normalisation
+			double norm_corr = 1.;
 
-				hfm->hts = 1./sqrt(norm_corr);
-			}
+			if (useNormalisationFitParameter)
+				norm_corr = minuit->GetParameter(par_off_norm);
+
+			if (useNormalisationFromA)
+				norm_corr = EtaFromA(minuit->GetParameter(par_off_a));
+
+			hfm->hts = 1./sqrt(norm_corr);
 		}
 
 		printf("\n\n>> F_C+H, iteration %u\n", ii);
