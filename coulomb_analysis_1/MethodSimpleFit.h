@@ -37,7 +37,8 @@ double EtaFromA(double a)
 
 //----------------------------------------------------------------------------------------------------
 
-double F_fit(double mt, double par[])
+template <class T>
+double F_fit(double mt, const T &par)
 {
 	// transfer parameters to FitModel
 	SetModelParameters(par, false);
@@ -97,15 +98,18 @@ void InterpolatePsi()
 	interpolatedPsiIm->Set(0);
 
 	// make list of points
-	vector<double> a_t;
+	vector<double> a_mt;
 	for (unsigned int i = 0; i < data_coll.size(); ++i)
-		a_t.push_back(data_coll[i].x_repr);
+		a_mt.push_back(data_coll[i].x_repr);
 
-	sort(a_t.begin(), a_t.end());
+	sort(a_mt.begin(), a_mt.end());
 
-	for (unsigned int i = 0; i < a_t.size(); i++)
+	for (double mt = a_mt.back() + 0.05; mt < 1.1; mt += 0.05)
+		a_mt.push_back(mt);
+
+	for (unsigned int i = 0; i < a_mt.size(); i++)
 	{
-		double mt = a_t[i];
+		double mt = a_mt[i];
 
 		TComplex Psi = coulomb->Psi_KL(-mt);
 
@@ -499,6 +503,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 				norm_corr = EtaFromA(minuit->GetParameter(par_off_a));
 
 			hfm->hts = 1./sqrt(norm_corr);
+
+			printf(">> setting hts = %.5f\n", hfm->hts);
 		}
 
 		printf("\n\n>> F_C+H, iteration %u\n", ii);
