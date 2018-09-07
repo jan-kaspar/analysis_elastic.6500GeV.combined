@@ -14,6 +14,7 @@ b_degrees=(
 
 t_maxs=(
 	"0.005"
+	"0.010"
 )
 
 #----------------------------------------------------------------------------------------------------
@@ -35,7 +36,12 @@ do
 
 			if [ $t_max == "0.005" ]
 			then
-				extra_config="-t-tr1 0.010 -t-tr2 0.011"
+				extra_config="-t-tr1 0.009 -t-tr2 0.012"
+			fi
+
+			if [ $t_max == "0.010" ]
+			then
+				extra_config="-t-tr1 0.015 -t-tr2 0.019"
 			fi
 
 			../do_fit -input "$dataset" -b-degree "$b_degree" -t-max "$t_max" $extra_config\
