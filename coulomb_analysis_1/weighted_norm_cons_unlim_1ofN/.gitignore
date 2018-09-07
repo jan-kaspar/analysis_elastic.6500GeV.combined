@@ -1,5 +1,4 @@
-fits
-fits_for_corr/
+fits_binc_*
 
 do_fit
 printResultTable
