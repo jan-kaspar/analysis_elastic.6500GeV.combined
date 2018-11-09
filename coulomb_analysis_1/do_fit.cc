@@ -87,6 +87,8 @@ int main(int argc, const char **argv)
 	unsigned int modulusHighTVariant = 2;
 
 	bool reweight_low_t_points = false;
+	bool reweight_low_t_points_meth1 = false;
+	bool reweight_low_t_points_meth2 = false;
 
 	MethodSimpleFit::useNormalisationFitParameter = false;
 	MethodSimpleFit::useNormalisationChiSqTerm = false;
@@ -146,6 +148,8 @@ int main(int argc, const char **argv)
 		if (TestStringParameter(argc, argv, argi, "-cni-formula", cniFormula)) continue;
 
 		if (TestBoolParameter(argc, argv, argi, "-reweight-low-t-points", reweight_low_t_points)) continue;
+		if (TestBoolParameter(argc, argv, argi, "-reweight-low-t-points-meth1", reweight_low_t_points_meth1)) continue;
+		if (TestBoolParameter(argc, argv, argi, "-reweight-low-t-points-meth2", reweight_low_t_points_meth2)) continue;
 
 		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-fit-parameter", MethodSimpleFit::useNormalisationFitParameter)) continue;
 		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-chisq-term", MethodSimpleFit::useNormalisationChiSqTerm)) continue;
@@ -410,18 +414,15 @@ int main(int argc, const char **argv)
 				*/
 			}
 
-			// TODO: remove
 			double sc = 1.;
 
-			if (reweight_low_t_points)
+			if (reweight_low_t_points_meth2)
 			{
-				/*
 				if (bi.bin >= 5 && bi.bin <= 6) sc *= 0.10;
 				if (bj.bin >= 5 && bj.bin <= 6) sc *= 0.10;
 
 				if (bi.bin >= 7 && bi.bin <= 8) sc *= 0.10;
 				if (bj.bin >= 7 && bj.bin <= 8) sc *= 0.10;
-				*/
 			}
 
 			data_coll_rel_unc(i, j) = el_sum * sc;
@@ -558,6 +559,50 @@ int main(int argc, const char **argv)
 			*/
 		}
 	}
+
+	if (reweight_low_t_points_meth1)
+	{
+		for (unsigned int i = 0; i < data_coll.size(); i++)
+		{
+			BinData &dp = data_coll[i];
+
+			if (dp.bin >= 5 && dp.bin <= 8)
+			{
+				double sen = 0.;
+
+				// red squared: (si_C / si_H)^2
+				if (dp.bin == 5) sen = 0.2746; // 0.524*0.524
+				if (dp.bin == 6) sen = 0.1310; // 0.362*0.362
+				if (dp.bin == 7) sen = 0.0702; // 0.265*0.265
+				if (dp.bin == 8) sen = 0.0388; // 0.197*0.197
+				const double scale = 7.;
+
+				const double unc_syst = sqrt(data_coll_rel_unc(i, i)) * dp.y;
+				const double unc_tot = scale / sqrt(sen);
+				const double unc_stat = sqrt(unc_tot*unc_tot - unc_syst*unc_syst);
+
+				dp.y_stat_unc = unc_stat;
+
+				const double unc_dc_tot = sqrt(unc_syst*unc_syst + unc_stat*unc_stat);
+				printf("* %u, %.3f, %.3f\n", dp.bin, unc_dc_tot, 1./unc_dc_tot/unc_dc_tot*1e3 / 0.796 * 0.039);
+			}
+		}
+	}
+
+	if (reweight_low_t_points_meth2)
+	{
+		for (unsigned int i = 0; i < data_coll.size(); i++)
+		{
+			BinData &dp = data_coll[i];
+
+			if (dp.bin >= 5 && dp.bin <= 6)
+				dp.y_stat_unc *= 0.10;
+
+			if (dp.bin >= 7 && dp.bin <= 8)
+				dp.y_stat_unc *= 0.10;
+		}
+	}
+
 
 	// ------------------------------ print dataset summary
 
