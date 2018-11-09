@@ -33,9 +33,11 @@ void PrintUsage()
 	printf("    -use-syst-unc <bool>\n");
 	printf("    -use-norm-unc <bool>\n");
 
-	printf("    -cni-formula <string>              choice of CNI formula (KL or SWY)\n");
+	printf("    -cni-formula <string>                    choice of CNI formula (KL or SWY)\n");
 
-	printf("    -reweight-low-t-points <bool>      whether low-|t| points should be reweighted\n");
+	printf("    -reweight-low-t-points <bool>            whether low-|t| points should be reweighted (default)\n");
+	printf("    -reweight-low-t-points-meth1 <bool>      whether low-|t| points should be reweighted (method 1)\n");
+	printf("    -reweight-low-t-points-meth2 <bool>      whether low-|t| points should be reweighted (method 2)\n");
 
 	printf("    -use-normalisation-fit-parameter\n");
 	printf("    -use-normalisation-chisq-term\n");
@@ -43,8 +45,20 @@ void PrintUsage()
 	printf("    -use-normalisation-from-a\n");
 	printf("    -Ap-value\n");
 
+	printf("    -use-eta-fixed\n");
+	printf("    -eta-value\n");
+
+	printf("    -use-a-fixed\n");
+	printf("    -a-value\n");
+
 	printf("    -use-b1-fixed\n");
 	printf("    -b1-value\n");
+
+	printf("    -use-b2-fixed\n");
+	printf("    -b2-value\n");
+
+	printf("    -use-b3-fixed\n");
+	printf("    -b3-value\n");
 
 	printf("    -output <file>\n");
 	printf("    -results <file>\n");
@@ -80,8 +94,23 @@ int main(int argc, const char **argv)
 	MethodSimpleFit::useNormalisationFromA = false;
 	MethodSimpleFit::A_p_value_fix = 0.;
 
+	MethodSimpleFit::useEtaFixed = false;
+	MethodSimpleFit::eta_value_fix = 0.;
+
+	MethodSimpleFit::useAFixed = false;
+	MethodSimpleFit::a_value_fix = 0.;
+
 	MethodSimpleFit::useB1Fixed = false;
 	MethodSimpleFit::b1_value_fix = 0.;
+
+	MethodSimpleFit::useB2Fixed = false;
+	MethodSimpleFit::b2_value_fix = 0.;
+
+	MethodSimpleFit::useB3Fixed = false;
+	MethodSimpleFit::b3_value_fix = 0.;
+
+	MethodSimpleFit::useRhoFixed = false;
+	MethodSimpleFit::rho_value_fix = 0.;
 
 	string rootOutputFileName = "do_fit.root";
 	string resultOutputFileName = "do_fit.out";
@@ -124,8 +153,23 @@ int main(int argc, const char **argv)
 		if (TestBoolParameter(argc, argv, argi, "-use-normalisation-from-a", MethodSimpleFit::useNormalisationFromA)) continue;
 		if (TestDoubleParameter(argc, argv, argi, "-Ap-value", MethodSimpleFit::A_p_value_fix)) continue;
 		
+		if (TestBoolParameter(argc, argv, argi, "-use-eta-fixed", MethodSimpleFit::useEtaFixed)) continue;
+		if (TestDoubleParameter(argc, argv, argi, "-eta-value", MethodSimpleFit::eta_value_fix)) continue;
+		
+		if (TestBoolParameter(argc, argv, argi, "-use-a-fixed", MethodSimpleFit::useAFixed)) continue;
+		if (TestDoubleParameter(argc, argv, argi, "-a-value", MethodSimpleFit::a_value_fix)) continue;
+		
 		if (TestBoolParameter(argc, argv, argi, "-use-b1-fixed", MethodSimpleFit::useB1Fixed)) continue;
 		if (TestDoubleParameter(argc, argv, argi, "-b1-value", MethodSimpleFit::b1_value_fix)) continue;
+		
+		if (TestBoolParameter(argc, argv, argi, "-use-b2-fixed", MethodSimpleFit::useB2Fixed)) continue;
+		if (TestDoubleParameter(argc, argv, argi, "-b2-value", MethodSimpleFit::b2_value_fix)) continue;
+		
+		if (TestBoolParameter(argc, argv, argi, "-use-b3-fixed", MethodSimpleFit::useB3Fixed)) continue;
+		if (TestDoubleParameter(argc, argv, argi, "-b3-value", MethodSimpleFit::b3_value_fix)) continue;
+		
+		if (TestBoolParameter(argc, argv, argi, "-use-rho-fixed", MethodSimpleFit::useRhoFixed)) continue;
+		if (TestDoubleParameter(argc, argv, argi, "-rho-value", MethodSimpleFit::rho_value_fix)) continue;
 
 		if (TestStringParameter(argc, argv, argi, "-output", rootOutputFileName)) continue;
 		if (TestStringParameter(argc, argv, argi, "-results", resultOutputFileName)) continue;
@@ -354,30 +398,181 @@ int main(int argc, const char **argv)
 				double el_anal = (*dsi.unc)(bi.bin-1, bj.bin-1);
 				el_sum += el_anal;
 
+				/*
 				if (i == j)
 				{
-					printf("idx = %3u | ds = %u, bin = %3i | x_repr = %.5f, y = %.3E | rel unc: stat = %2.1f%%, norm_g = %.2f%%, norm_add = %.2f%%, anal = %.2f%%\n",
+					const double unc_rel_tot = sqrt(pow(bi.y_stat_unc / bi.y, 2.) + el_sum);
+
+					printf("idx = %3u | ds = %u, bin = %3i | x_repr = %.5f, y = %.3E | rel unc: stat = %4.1f%%, norm_g = %.2f%%, norm_add = %.2f%%, anal = %.2f%%, tot = %.2f%%\n",
 						i, bi.dataset, bi.bin, bi.x_repr, bi.y,
-						bi.y_stat_unc / bi.y * 100., sqrt(el_norm_g)*100., sqrt(el_norm_add)*100., sqrt(el_anal)*100.);
-					/*
-					printf("idx = %3u | ds = %u, bin = %3i | t_left = %.4f, t_repr = %.4f, t_right = %.4f\n",
-						i, bi.dataset, bi.bin, bi.x_left, bi.x_repr, bi.x_right);
-					*/
+						bi.y_stat_unc / bi.y * 100., sqrt(el_norm_g)*100., sqrt(el_norm_add)*100., sqrt(el_anal)*100., unc_rel_tot*100.);
 				}
+				*/
 			}
 
-			data_coll_rel_unc(i, j) = el_sum;
+			// TODO: remove
+			double sc = 1.;
+
+			if (reweight_low_t_points)
+			{
+				/*
+				if (bi.bin >= 5 && bi.bin <= 6) sc *= 0.10;
+				if (bj.bin >= 5 && bj.bin <= 6) sc *= 0.10;
+
+				if (bi.bin >= 7 && bi.bin <= 8) sc *= 0.10;
+				if (bj.bin >= 7 && bj.bin <= 8) sc *= 0.10;
+				*/
+			}
+
+			data_coll_rel_unc(i, j) = el_sum * sc;
 		}
 	}
 
-	// give more weight to the low |t| points
+	// ------------------------------ apply re-weighting
+
 	if (reweight_low_t_points)
 	{
-		for (auto &dp : data_coll)
+		for (unsigned int i = 0; i < data_coll.size(); i++)
 		{
+			BinData &dp = data_coll[i];
+
+			// default: first two points, stat_unc reduced to 10%
+			/*
 			if (dp.x_repr < 1.1E-3)
 				dp.y_stat_unc *= 0.10;
+			*/
+
+			// TODO
+
+			/*
+			if (dp.bin >= 5 && dp.bin <= 8)
+			{
+				const double unc_syst_rel = sqrt(data_coll_rel_unc(i, i));
+				const double unc_tot_rel = 0.02;
+				const double unc_stat_rel = sqrt(unc_tot_rel*unc_tot_rel - unc_syst_rel*unc_syst_rel);
+				dp.y_stat_unc = unc_stat_rel * dp.y;
+			}
+			*/
+
+			/*
+			if (dp.bin >= 5 && dp.bin <= 8)
+			{
+				const double unc_syst = sqrt(data_coll_rel_unc(i, i)) * dp.y;
+				const double unc_tot = 12.; // mb/GeV^2
+				const double unc_stat = sqrt(unc_tot*unc_tot - unc_syst*unc_syst);
+				dp.y_stat_unc = unc_stat;
+			}
+			*/
+
+			/*
+			if (dp.bin >= 5 && dp.bin <= 6)
+				dp.y_stat_unc *= 0.10;
+
+			if (dp.bin >= 7 && dp.bin <= 8)
+				dp.y_stat_unc *= 0.10;
+			*/
+
+			/*
+			if (dp.bin >= 7)
+				dp.y_stat_unc *= 100.;
+			*/
+
+			/*
+			if (dp.bin >= 5 && dp.bin <= 8)
+			{
+				double sen = 0.;
+
+				// green: A_C / A_H
+				//if (dp.bin == 5) sen = 0.724;
+				//if (dp.bin == 6) sen = 0.602;
+				//if (dp.bin == 7) sen = 0.515;
+				//if (dp.bin == 8) sen = 0.444;
+				//const double scale = 13.;
+
+				// red: si_C / si_H
+				//if (dp.bin == 5) sen = 0.524;
+				//if (dp.bin == 6) sen = 0.362;
+				//if (dp.bin == 7) sen = 0.265;
+				//if (dp.bin == 8) sen = 0.197;
+				//const double scale = 10.;
+
+				// red squared: (si_C / si_H)^2
+				if (dp.bin == 5) sen = 0.2746; // 0.524*0.524
+				if (dp.bin == 6) sen = 0.1310; // 0.362*0.362
+				if (dp.bin == 7) sen = 0.0702; // 0.265*0.265
+				if (dp.bin == 8) sen = 0.0388; // 0.197*0.197
+				const double scale = 7.;
+
+				const double unc_syst = sqrt(data_coll_rel_unc(i, i)) * dp.y;
+				const double unc_tot = scale / sqrt(sen);
+				const double unc_stat = sqrt(unc_tot*unc_tot - unc_syst*unc_syst);
+
+				dp.y_stat_unc = unc_stat;
+
+				const double unc_dc_tot = sqrt(unc_syst*unc_syst + unc_stat*unc_stat);
+				printf("* %u, %.3f, %.3f\n", dp.bin, unc_dc_tot, 1./unc_dc_tot/unc_dc_tot*1e3 / 0.796 * 0.039);
+			}
+			*/
+
+			/*
+			if (dp.bin >= 5 && dp.bin <= 8)
+			{
+				double sen = 0.;
+
+				// red squared: (si_C / si_H)^2
+				if (dp.bin == 5) sen = 0.2746; // 0.524*0.524
+				if (dp.bin == 6) sen = 0.1310; // 0.362*0.362
+				if (dp.bin == 7) sen = 0.0702; // 0.265*0.265
+				if (dp.bin == 8) sen = 0.0388; // 0.197*0.197
+				const double scale = 3.3;
+
+				const double unc_syst = sqrt(data_coll_rel_unc(i, i)) * dp.y;
+				const double unc_tot = sqrt(unc_syst*unc_syst + dp.y_stat_unc*dp.y_stat_unc);
+
+				const double unc_w = scale / sqrt(sen);
+
+				const double unc_comb = sqrt(unc_tot*unc_tot + unc_w*unc_w);
+
+				const double unc_stat = sqrt(unc_comb*unc_comb - unc_syst*unc_syst);
+
+				dp.y_stat_unc = unc_stat;
+
+				printf("* bin = %u, unc_tot = %.3f, unc_w = %.3f, unc_comb = %.3f \n", dp.bin, unc_tot, unc_w, unc_comb);
+			}
+			*/
+
+			/*
+			if (dp.x_repr < 1.6E-3)	// first ?? points
+			if (dp.x_repr < 1.8E-3)	// first ?? points
+				//dp.y_stat_unc *= 0.10;
+				dp.y_stat_unc = 1.;
+			*/
+
+			/*
+			// introduce bias
+			if (dp.bin >= 5 && dp.bin <= 8)
+			{
+				const double unc_syst = 10. * sqrt(data_coll_rel_unc(i, i)) * dp.y;
+				dp.y += unc_syst;
+			}
+			*/
 		}
+	}
+
+	// ------------------------------ print dataset summary
+
+	for (unsigned int i = 0; i < data_coll.size(); i++)
+	{
+		const BinData &bi = data_coll[i];
+
+		const double unc_rel_stat = bi.y_stat_unc / bi.y;
+		const double unc_rel_syst = sqrt(data_coll_rel_unc(i, i));
+		const double unc_rel_tot = sqrt(unc_rel_stat*unc_rel_stat + unc_rel_syst*unc_rel_syst);
+
+		printf("idx = %3u | ds = %u, bin = %3i | x_repr = %.5f, y = %.3E | rel unc: stat = %5.2f%%, syst = %5.2f%%, tot = %5.2f%%\n",
+			i, bi.dataset, bi.bin, bi.x_repr, bi.y,
+			unc_rel_stat*100., unc_rel_syst*100., unc_rel_tot*100.
+		);
 	}
 
 	// initialize calculation engine
