@@ -10,8 +10,23 @@ bool useNormalisationLimit;
 bool useNormalisationFromA;
 double A_p_value_fix;
 
+bool useEtaFixed;
+double eta_value_fix;
+
+bool useAFixed;
+double a_value_fix;
+
 bool useB1Fixed;
 double b1_value_fix;
+
+bool useB2Fixed;
+double b2_value_fix;
+
+bool useB3Fixed;
+double b3_value_fix;
+
+bool useRhoFixed;
+double rho_value_fix;
 
 bool useInterpolatedPsi;
 
@@ -427,9 +442,22 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 			minuit->SetParameter(par_off_norm, "eta", 1., 0.01, 0., 0.);
 	}
 
+	if (useEtaFixed)
+	{
+		minuit->SetParameter(par_off_norm, "eta", eta_value_fix, 0., 0., 0.);
+		minuit->FixParameter(par_off_norm);
+	}
+
 	// initial point - modulus
 	char buf[200];
 	minuit->SetParameter(par_off_a, "a", hfm->a / 1E8, 0.7, 0., 0.);	// without the factor 1E8
+
+	if (useAFixed)
+	{
+		minuit->SetParameter(par_off_a, "a", a_value_fix, 0., 0., 0.);
+		minuit->FixParameter(par_off_a);
+	}
+
 	for (unsigned int i = 1; i <= B_degree; i++)
 	{
 		sprintf(buf, "b%i", i);
@@ -454,12 +482,30 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 	
 	if (useB1Fixed)
 	{
-		minuit->SetParameter(par_off_b, "b1", b1_value_fix, 0., 0., 0.);
-		minuit->FixParameter(par_off_b);
+		minuit->SetParameter(par_off_b+0, "b1", b1_value_fix, 0., 0., 0.);
+		minuit->FixParameter(par_off_b+0);
+	}
+
+	if (useB2Fixed)
+	{
+		minuit->SetParameter(par_off_b+1, "b2", b2_value_fix, 0., 0., 0.);
+		minuit->FixParameter(par_off_b+1);
+	}
+
+	if (useB3Fixed)
+	{
+		minuit->SetParameter(par_off_b+2, "b3", b3_value_fix, 0., 0., 0.);
+		minuit->FixParameter(par_off_b+2);
 	}
 
 	// initial point - phase
 	minuit->SetParameter(par_off_p0, "p0", hfm->p0, 0.01, p0_lim_min, p0_lim_max);
+
+	if (useRhoFixed)
+	{
+		minuit->SetParameter(par_off_p0, "p0", M_PI/2. - atan(rho_value_fix), 0., 0., 0.);
+		minuit->FixParameter(par_off_p0);
+	}
 
 	// ------------------------------ F_C+H fits, chosen formula
 
@@ -469,6 +515,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 
 	t_min_fit = 0.;	// include region affected by Coulomb
 
+	// TODO: uncomment ?
+	/*
 	bool release_p0 = (chosenCIMode != CoulombInterference::mPH);
 	if (release_p0)
 	{
@@ -478,6 +526,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 		minuit->FixParameter(par_off_p0);
 		printf("* p0 fixed\n");
 	}
+	*/
 
 	useInterpolatedPsi = false;
 
@@ -763,7 +812,13 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 	int par_uncoff_p0 = par_off_p0;
 	if (useB1Fixed)
 		par_uncoff_p0--;
+	if (useB2Fixed)
+		par_uncoff_p0--;
+	if (useB3Fixed)
+		par_uncoff_p0--;
 
+	// TODO: uncomment
+	/*
 	double V_pa_pa = minuit->GetCovarianceMatrixElement(par_off_a, par_off_a);
 	double V_pa_p0 = minuit->GetCovarianceMatrixElement(par_off_a, par_uncoff_p0);
 	double V_p0_p0 = minuit->GetCovarianceMatrixElement(par_uncoff_p0, par_uncoff_p0);
@@ -788,6 +843,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 
 	double V_si_tot = der_a * V_a_a * der_a + 2.* der_a * V_a_rho * der_rho + der_rho * V_rho_rho * der_rho;
 	double si_tot_unc = sqrt(V_si_tot);
+	*/
+	double si_tot_unc = 0.;
 
 	// ------------------------------ save fit data
 
@@ -831,7 +888,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 
 	// ------------------------------ save fit data in TeX format
 
-	fprintf(f_out_tex, "$n_{\\rm points} = %lu$, $\\chi^2/\\hbox{ndf} = %.3f$ \\\\ \n", data_coll.size(), m_chi2 / m_ndf);
+	fprintf(f_out_tex, "$n_{\\rm points} = %lu$, $\\chi^2/\\hbox{ndf} =  %.3f / (%lu - %u) = %.3f$ \\\\ \n",
+		data_coll.size(), m_chi2, data_coll.size(), m_n_par_var, m_chi2 / m_ndf);
 	fprintf(f_out_tex, "$\\rho = %.4f \\pm %.4f$, $\\si_{\\rm tot} = (%.2f \\pm %.2f)\\un{mb}$, $A' = %.1f\\un{mb/GeV^2}$, $\\eta = %.3f \\pm %.3f$ \\\\ \n",
 		results.rho, results.rho_e, si_tot, si_tot_unc, A_p, eta, eta_unc);
 
