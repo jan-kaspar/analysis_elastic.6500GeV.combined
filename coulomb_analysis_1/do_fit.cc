@@ -101,13 +101,13 @@ int main(int argc, const char **argv)
 	MethodSimpleFit::A_p_value_fix = 0.;
 
 	MethodSimpleFit::useEtaFixed = false;
-	MethodSimpleFit::eta_value_fix = 0.;
+	MethodSimpleFit::eta_value_fix = 1.;
 
 	MethodSimpleFit::useAFixed = false;
-	MethodSimpleFit::a_value_fix = 0.;
+	MethodSimpleFit::a_value_fix = 18.4;
 
 	MethodSimpleFit::useB1Fixed = false;
-	MethodSimpleFit::b1_value_fix = 0.;
+	MethodSimpleFit::b1_value_fix = 10.2;
 
 	MethodSimpleFit::useB2Fixed = false;
 	MethodSimpleFit::b2_value_fix = 0.;
@@ -116,7 +116,7 @@ int main(int argc, const char **argv)
 	MethodSimpleFit::b3_value_fix = 0.;
 
 	MethodSimpleFit::useRhoFixed = false;
-	MethodSimpleFit::rho_value_fix = 0.;
+	MethodSimpleFit::rho_value_fix = 0.12;
 
 	string rootOutputFileName = "do_fit.root";
 	string resultOutputFileName = "do_fit.out";
@@ -247,8 +247,14 @@ int main(int argc, const char **argv)
 	hfm->hts = sqrt(1.);
 	//hfm->hts *= 1.05;	// simulates the uncertainty of the high-|t| part
 
-	string init_point_desc;
-	init_point_desc = "default"; hfm->a = 1.84E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
+	string init_point_desc = "default";
+	hfm->a = MethodSimpleFit::a_value_fix * 1E8;
+	hfm->b1 = MethodSimpleFit::b1_value_fix;
+	hfm->b2 = MethodSimpleFit::b2_value_fix;
+	hfm->b3 = MethodSimpleFit::b3_value_fix;
+	hfm->p0 = M_PI/2. - atan(MethodSimpleFit::rho_value_fix);
+
+	//init_point_desc = "centre"; hfm->a = 1.84E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
 	//init_point_desc = "test 1"; hfm->a = 1.84E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.06);
 	//init_point_desc = "test 2"; hfm->a = 1.84E9; hfm->b1 = 9.9; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);
 	//init_point_desc = "test 3"; hfm->a = 1.70E9; hfm->b1 = 10.2; hfm->b2 = 0.; hfm->b3 = 0.; hfm->p0 = M_PI/2. - atan(0.12);

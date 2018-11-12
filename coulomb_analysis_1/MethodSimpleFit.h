@@ -438,9 +438,9 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 	if (useNormalisationFitParameter)
 	{
 		if (useNormalisationLimit)
-			minuit->SetParameter(par_off_norm, "eta", 1., 0.01, 1. - 0.055, 1. + 0.055);
+			minuit->SetParameter(par_off_norm, "eta", eta_value_fix, 0.01, eta_value_fix - 0.055, eta_value_fix + 0.055);
 		else
-			minuit->SetParameter(par_off_norm, "eta", 1., 0.01, 0., 0.);
+			minuit->SetParameter(par_off_norm, "eta", eta_value_fix, 0.01, 0., 0.);
 	}
 
 	if (useEtaFixed)
