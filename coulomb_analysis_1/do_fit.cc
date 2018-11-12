@@ -42,6 +42,7 @@ void PrintUsage()
 	printf("    -use-normalisation-fit-parameter\n");
 	printf("    -use-normalisation-chisq-term\n");
 	printf("    -use-normalisation-limit\n");
+
 	printf("    -use-normalisation-from-a\n");
 	printf("    -Ap-value\n");
 
@@ -59,6 +60,9 @@ void PrintUsage()
 
 	printf("    -use-b3-fixed\n");
 	printf("    -b3-value\n");
+
+	printf("    -use-rho-fixed\n");
+	printf("    -rho-value\n");
 
 	printf("    -output <file>\n");
 	printf("    -results <file>\n");
@@ -187,6 +191,13 @@ int main(int argc, const char **argv)
 	{
 		PrintUsage();
 		return 1;
+	}
+
+	// input validation
+	if (MethodSimpleFit::useNormalisationFitParameter && MethodSimpleFit::useNormalisationFromA)
+	{
+		printf("ERROR: useNormalisationFitParameter and useNormalisationFromA cannot be both true.\n");
+		return 2;
 	}
 
 	// prepare list of standard datasets
@@ -435,7 +446,7 @@ int main(int argc, const char **argv)
 	{
 		for (unsigned int i = 0; i < data_coll.size(); i++)
 		{
-			BinData &dp = data_coll[i];
+			//BinData &dp = data_coll[i];
 
 			// default: first two points, stat_unc reduced to 10%
 			/*
