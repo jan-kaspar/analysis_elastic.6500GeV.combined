@@ -417,6 +417,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 	f_fit = new TF1("f_fit", f_fit_imp, 1E-5, 1., n_fit_parameters);
 	f_fit->SetNpx(1000);
 
+	t_min_fit = 0.;
 	t_max_fit = 0.25;
 	N_ii = 3; // default
 	//N_ii = 10; // test
@@ -507,13 +508,11 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 		minuit->FixParameter(par_off_p0);
 	}
 
-	// ------------------------------ F_C+H fits, chosen formula
+	// ------------------------------ F_CH fits, chosen formula
 
 	printf("\n>> setting chosen interference formula\n");
 	coulomb->mode = chosenCIMode;
 	coulomb->Print();
-
-	t_min_fit = 0.;	// include region affected by Coulomb
 
 	// TODO: uncomment ?
 	/*
@@ -541,8 +540,10 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 
 			InterpolatePsi();
 			useInterpolatedPsi = true;
+		}
 
-			// update high |t| normalisation
+		// update high |t| normalisation
+		{
 			double norm_corr = 1.;
 
 			if (useNormalisationFitParameter)
@@ -552,14 +553,14 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 				norm_corr = EtaFromA(minuit->GetParameter(par_off_a));
 
 			hfm->hts = 1./sqrt(norm_corr);
-
-			printf(">> setting hts = %.5f\n", hfm->hts);
 		}
 
-		printf("\n\n>> F_C+H, iteration %u\n", ii);
+		printf(">> setting hts = %.5f\n", hfm->hts);
+
+		printf("\n\n>> F_CH, iteration %u\n", ii);
 
 		char buf[50];
-		sprintf(buf, "F_C+H, iteration %u", ii);
+		sprintf(buf, "F_CH, iteration %u", ii);
 		gDirectory = topDirectory->mkdir(buf);
 
 
@@ -890,7 +891,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 
 	fprintf(f_out_tex, "$n_{\\rm points} = %lu$, $\\chi^2/\\hbox{ndf} =  %.3f / (%lu - %u) = %.3f$ \\\\ \n",
 		data_coll.size(), m_chi2, data_coll.size(), m_n_par_var, m_chi2 / m_ndf);
-	fprintf(f_out_tex, "$\\rho = %.4f \\pm %.4f$, $\\si_{\\rm tot} = (%.2f \\pm %.2f)\\un{mb}$, $A' = %.1f\\un{mb/GeV^2}$, $\\eta = %.3f \\pm %.3f$ \\\\ \n",
+	fprintf(f_out_tex, "$\\rho = %.4f \\pm %.4f$, $\\si_{\\rm tot} = (%.2f \\pm %.2f)\\un{mb}$, $A' \\equiv \\et\\, \\d\\si^{\\rm N}/\\d t|_0 = %.2f\\un{mb/GeV^2}$, $\\eta = %.5f \\pm %.5f$ \\\\ \n",
 		results.rho, results.rho_e, si_tot, si_tot_unc, A_p, eta, eta_unc);
 
 	for (unsigned int i = 0; i < n_fit_parameters; ++i)
@@ -898,7 +899,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 		if (i > 0)
 			fprintf(f_out_tex, ", ");
 
-		fprintf(f_out_tex, "%u/%s = %.3E $\\pm$ %.3E\n", i, minuit->GetParName(i), minuit->GetParameter(i), minuit->GetParError(i));
+		fprintf(f_out_tex, "%u/%s = %.5E $\\pm$ %.5E\n", i, minuit->GetParName(i), minuit->GetParameter(i), minuit->GetParError(i));
 	}
 
 	return 0;
