@@ -267,6 +267,8 @@ int main(int argc, const char **argv)
 		chosenCIMode = CoulombInterference::mKL;
 	else if (cniFormula == "SWY")
 		chosenCIMode = CoulombInterference::mSWY;
+	else if (cniFormula == "PH")
+		chosenCIMode = CoulombInterference::mPH;
 	else {
 		printf("ERROR: unknown CNI formula '%s'.\n", cniFormula.c_str());
 		return 1;
