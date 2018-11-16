@@ -887,6 +887,12 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 
 	g_fit_data->Write("g_fit_data");
 
+
+	TGraph *g_aux_data = new TGraph();
+	g_aux_data->SetPoint(0, 0., hfm->t1);
+	g_aux_data->SetPoint(1, 0., hfm->t2);
+	g_aux_data->Write("g_aux_data");
+
 	// ------------------------------ save fit data in TeX format
 
 	fprintf(f_out_tex, "$n_{\\rm points} = %lu$, $\\chi^2/\\hbox{ndf} =  %.3f / (%lu - %u) = %.3f$ \\\\ \n",
