@@ -26,6 +26,7 @@ void PrintUsage()
 	printf("    -t-min <float>\n");
 	printf("    -t-max <float>\n");
 	printf("    -binc <integer>\n");
+	printf("    -bins <string>							comma separated list of bin indeces (counted from 1)\n");
 
 	printf("    -b-degree <int>\n");
 	printf("    -htv <int>\n");
@@ -83,6 +84,7 @@ int main(int argc, const char **argv)
 	double t_min_data_coll = 8E-4;
 	double t_max_data_coll = 0.17;
 	
+	string binsSpec = "";
 	unsigned int bi_increment = 1;
 
 	double t_tr1 = 0.2;
@@ -137,6 +139,7 @@ int main(int argc, const char **argv)
 		if (TestDoubleParameter(argc, argv, argi, "-t-max", t_max_data_coll)) continue;
 
 		if (TestUIntParameter(argc, argv, argi, "-binc", bi_increment)) continue;
+		if (TestStringParameter(argc, argv, argi, "-bins", binsSpec)) continue;
 
 		if (TestUIntParameter(argc, argv, argi, "-b-degree", B_degree)) continue;
 
@@ -274,6 +277,12 @@ int main(int argc, const char **argv)
 		return 1;
 	}
 
+	if (chosenCIMode == CoulombInterference::mPH && !MethodSimpleFit::useRhoFixed)
+	{
+		printf("ERROR: fits with PH formula should have fixed rho.\n");
+		return 2;
+	}
+
 	// print settings
 	printf(">> settings\n");
 	printf("    N_b = %u\n", B_degree);
@@ -350,6 +359,15 @@ int main(int argc, const char **argv)
 	{
 		unsigned int dataset_points = 0;
 		TH1D *h = inputData.dataSetInfo[dsi].hist;
+
+		// TODO
+		/*
+		vector<int> binIndeces;
+		if (binsSpec == "")
+		{
+		} else {
+		}
+		*/
 
 		int bi_start_inc = 8;
 
@@ -461,8 +479,6 @@ int main(int argc, const char **argv)
 			if (dp.x_repr < 1.1E-3)
 				dp.y_stat_unc *= 0.10;
 			*/
-
-			// TODO
 
 			/*
 			if (dp.bin >= 5 && dp.bin <= 8)

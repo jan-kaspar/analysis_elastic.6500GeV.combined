@@ -514,19 +514,6 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 	coulomb->mode = chosenCIMode;
 	coulomb->Print();
 
-	// TODO: uncomment ?
-	/*
-	bool release_p0 = (chosenCIMode != CoulombInterference::mPH);
-	if (release_p0)
-	{
-		minuit->ReleaseParameter(par_off_p0);
-		printf("* p0 released\n");
-	} else {
-		minuit->FixParameter(par_off_p0);
-		printf("* p0 fixed\n");
-	}
-	*/
-
 	useInterpolatedPsi = false;
 
 	for (unsigned int ii = 0; ii < N_ii; ii++)
