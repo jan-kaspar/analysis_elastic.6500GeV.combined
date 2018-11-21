@@ -469,7 +469,6 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 		if (i == 2) val = hfm->b2;
 		if (i == 3) val = hfm->b3;
 		if (i == 4) val = hfm->b4;
-
 		if (i == 5) { val = hfm->b5; unc = 20.; lim_low = 0.; lim_high = 0.; }
 		if (i == 6) { val = hfm->b6; unc = 20.; lim_low = 0.; lim_high = 0.; }
 		if (i == 7) { val = hfm->b7; unc = 20.; lim_low = 0.; lim_high = 0.; }
@@ -797,19 +796,23 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 	// ------------------------------ error propagation
 
 	// indices in GetCovarianceMatrixElement function refer only to non-fixed parameters
-	int par_uncoff_p0 = par_off_p0;
-	if (useB1Fixed)
-		par_uncoff_p0--;
-	if (useB2Fixed)
-		par_uncoff_p0--;
-	if (useB3Fixed)
-		par_uncoff_p0--;
+	signed int par_uncoff_a = -1, par_uncoff_p0 = -1;
 
-	// TODO: uncomment
-	/*
-	double V_pa_pa = minuit->GetCovarianceMatrixElement(par_off_a, par_off_a);
-	double V_pa_p0 = minuit->GetCovarianceMatrixElement(par_off_a, par_uncoff_p0);
-	double V_p0_p0 = minuit->GetCovarianceMatrixElement(par_uncoff_p0, par_uncoff_p0);
+	signed int idx = 0;
+	for (int pi = 0; pi < minuit->GetNumberTotalParameters(); pi++)
+	{
+		if (minuit->IsFixed(pi))
+			continue;
+
+		if (minuit->GetParName(pi) == string("a")) par_uncoff_a = idx;
+		if (minuit->GetParName(pi) == string("p0")) par_uncoff_p0 = idx;
+
+		idx++;
+	}
+
+	double V_pa_pa = (par_uncoff_a >= 0) ? minuit->GetCovarianceMatrixElement(par_uncoff_a, par_uncoff_a) : 0.;
+	double V_pa_p0 = (par_uncoff_a >= 0 && par_uncoff_p0 >= 0) ? minuit->GetCovarianceMatrixElement(par_uncoff_a, par_uncoff_p0) : 0.;
+	double V_p0_p0 = (par_uncoff_p0 >= 0) ? minuit->GetCovarianceMatrixElement(par_uncoff_p0, par_uncoff_p0) : 0.;
 
 	printf("sqrt(V_pa_pa) = %.3f\n", sqrt(V_pa_pa));
 	printf("sqrt(V_p0_p0) = %.3f\n", sqrt(V_p0_p0));
@@ -831,8 +834,7 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 
 	double V_si_tot = der_a * V_a_a * der_a + 2.* der_a * V_a_rho * der_rho + der_rho * V_rho_rho * der_rho;
 	double si_tot_unc = sqrt(V_si_tot);
-	*/
-	double si_tot_unc = 0.;
+	printf("si_tot_unc = %.3f\n", si_tot_unc);
 
 	// ------------------------------ save fit data
 
