@@ -1,0 +1,18 @@
+#!/bin/bash
+
+base_dir="/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1"
+
+dir="approach3_step_f"
+mkdir -p "$dir"
+
+$base_dir/do_fit\
+		-input "simu-ob-2-10-0.05" -b-degree "1" -t-min "0" -t-max "0.05" -t-tr1 "0.05" -t-tr2 "0.07"\
+		-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
+		-use-normalisation-fit-parameter 1\
+		-use-normalisation-chisq-term 0 \
+		-use-eta-fixed 0 -eta-value 1.02044 \
+		-use-a-fixed 0 -a-value 19.1193\
+		-use-b1-fixed 0 -b1-value 10.3590\
+		-use-rho-fixed 0 -rho-value 0.0848\
+		-output "$dir/fit.root" -results "$dir/fit.out" -tex "$dir/fit.tex" \
+	&> "$dir/fit.log"

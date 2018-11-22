@@ -1,0 +1,21 @@
+#!/bin/bash
+
+make "modification"
+
+for i in `seq 1 100`
+do
+	#dir="data/none/seed$i"
+	dir="data/norm/seed$i"
+	#dir="data/stat+syst+norm/seed$i"
+	echo "* $dir"
+
+	mkdir -p "$dir"
+
+	./modification -unc-file "build_uncertainties.root" -binning "ob-2-10-0.05"\
+		-apply-stat-err 0\
+		-apply-syst-err 0\
+		-apply-norm-err 1\
+		-seed $i\
+		-norm-unc-sigma 0.055\
+		-output "$dir/simu.root" &> "$dir/simu.log"
+done

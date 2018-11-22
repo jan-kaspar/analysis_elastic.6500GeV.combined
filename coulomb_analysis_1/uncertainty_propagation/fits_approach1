@@ -1,0 +1,11 @@
+#!/bin/bash
+
+base_dir="/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1"
+
+dir="approach1"
+mkdir -p "$dir"
+
+$base_dir/do_fit -input "simu-ob-2-10-0.05" -b-degree "1" -t-max "0.07" -t-tr1 "0.09" -t-tr2 "0.25"\
+		-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
+		-output "$dir/fit.root" -results "$dir/fit.out" -tex "$dir/fit.tex" \
+	&> "$dir/fit.log"

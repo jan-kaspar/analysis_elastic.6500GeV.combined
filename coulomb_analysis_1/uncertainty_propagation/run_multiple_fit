@@ -1,0 +1,23 @@
+#!/bin/bash
+
+make -C ..
+
+for i in `seq 1 1`
+do
+	dir="data/none/seed$i"
+	#dir="data/norm/seed$i"
+	#dir="data/stat+syst+norm/seed$i"
+	echo "* $dir"
+
+	for f in "fits_approach1" "fits_approach2" "fits_approach3_a_d"  "fits_approach3_f"
+	do
+		cp "$f" "$dir/"
+
+		cd "$dir"
+		chmod u+x "$f"
+		"./$f" &
+		cd - &> /dev/null
+	done
+
+	#wait
+done

@@ -1,0 +1,90 @@
+\input slides.tex
+\input utf8-t1
+
+\newpage %-------------------------------------------------------------------------------------------
+
+\def\author{J.~Kašpar}
+\def\caption{Uncertainty propagation}
+\def\date{22 Nov 2018}
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Method}
+
+\> start with the $\d\si/\d t$ histogram used for the standard fits
+
+\> ``modify'' the histogram by adding randomly generated fluctuations to all bins
+\>> stat(istical) and syst(ematic) fluctuations generated according to the same matrix as used in the fit $\ch^2$ expression (respecting the correlations)
+\>> relative norm(alisation) fluctuations generated according to Gaussian with $\si = 0.055$
+
+\> ``modification'' performed 100 times with different random seeds
+
+\> each of the ``modified'' histograms fitted with the selected fit approaches
+\>> calculate ``deltas'' for each parameter ($\rh$, $\si_{\rm tot}$): ``modified'' fit - ``start'' fit
+\>> discard fit if $\De\rh > 0.05$ or $\De\si_{\rm tot} > 10\un{mb}$ -- we would hardly accept such results
+
+\> ``delta'' distributions and their RMS summarised on the next slide
+
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Plots}
+
+\> red: only normalisation fluctuation simulated in the ``modification'' step
+\> blue: all kinds of fluctuations simulated in the ``modification'' step
+
+\> RMS values in the legend
+
+\centerline{\fig[16cm]{../plots/hist_cmp.pdf}}
+
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Validations}
+
+\> validation 1
+\>> the procedure from slide 1 was executed with ``$0\un{\si}$'' fluctuations in the ``modification'' step
+\>> the fits reproduce the standard results
+
+\> validation 2
+\>> for approach 1, the normalisation uncertainty should drive the errors
+\>>> correct, on slide 2 the RMS of the red histogram is almost the same as the blue one
+\>> for approach 3, in contrary, the normalisation should play negligible role -- the fit should determine it on its own
+\>>> correct, on slide 2 the RMS of the red histogram is extremely small
+
+\> validation 3 -- comparison with alternative uncertainty estimates
+\>> approach 1: in the preprint we quote $\rh$ uncertainty of $0.01$
+\>>> compatible with the value from slide 2
+\>> approach 2: rough estimate made for the September LHCC
+\>>> compatible with the values from slide 2
+\>> approach 3, step f: the fit presented yesterday (21 Nov 2018) yields $\rh$ and $\si_{\rm tot}$ uncertainties of $0.0103$ and $3.27\un{mb}$, resp.
+\>>> compatible with the values from slide 2
+
+
+\newpage %-------------------------------------------------------------------------------------------
+\title{Updated result table}
+
+(many digits for our internal use)
+
+\cBlack
+\centerline{\tab{\bln
+										& \rh 			& \si_{\rm tot}\ung{mb}	\cr\bln
+\hbox{CERN-EP-2017-321}					& -				& 110.6 \pm 3.4			\cr\ln
+\hbox{CERN-EP-2017-335}					& 0.09 \pm 0.01 & -						\cr\bln
+%
+\hbox{approach 1: norm.~fixed}			& 0.08795 \pm 0.0081	& 111.777 \pm 3.158	\cr\ln
+\hbox{approach 2: norm.~constrained}	& 0.08597 \pm 0.0075	& 111.347 \pm 3.175	\cr\ln
+\hbox{approach 3: norm.~free, step d}	& 0.08478 \pm 0.0104	& 110.318 \pm 3.954 \cr\ln
+\hbox{approach 3: norm.~free, step f}	& 0.09906 \pm 0.0092	& 109.349 \pm 3.005	\cr\bln
+}
+}
+
+\> weighted average of CERN-EP-2017-321 and approach 3, step d:
+\>> the preprint datum taken with 1 decimal digit as above
+
+\cThird
+$$\si_{\rm tot} = (110.480 \pm 2.578)\un{mb}$$
+
+
+\vfil
+\eject
+\bye
