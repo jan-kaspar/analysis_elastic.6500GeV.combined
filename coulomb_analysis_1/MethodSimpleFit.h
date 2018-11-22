@@ -882,6 +882,22 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 	g_aux_data->SetPoint(1, 0., hfm->t2);
 	g_aux_data->Write("g_aux_data");
 
+	// ------------------------------ print out results for log parsing
+
+	printf("\n");
+
+	for (int pi = 0; pi < minuit->GetNumberTotalParameters(); pi++)
+		printf("%s-->%.6E\n", minuit->GetParName(pi), minuit->GetParameter(pi));
+
+	if (useNormalisationFromA)
+		printf("eta-->%.6E\n", eta);
+
+	printf("Ap-->%.6E\n", A_p);
+	printf("rho-->%.6E\n", results.rho);
+	printf("si_tot-->%.6E\n", si_tot);
+
+	printf("\n");
+
 	// ------------------------------ save fit data in TeX format
 
 	fprintf(f_out_tex, "$n_{\\rm points} = %lu$, $\\chi^2/\\hbox{ndf} =  %.3f / (%lu - %u) = %.3f$ \\\\ \n",
