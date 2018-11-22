@@ -1,0 +1,41 @@
+#!/bin/bash
+
+source "../../../common.sh"
+
+datasets=(
+#	"2500-2rp-ob-1-20-0.05"
+	"2500-2rp-ob-2-10-0.05"
+#	"2500-2rp-ob-3-5-0.05"
+)
+
+b_degrees=(
+	"1"
+)
+
+#----------------------------------------------------------------------------------------------------
+
+#make -C .. "do_fit" || exit 1
+
+for dataset in ${datasets[*]}
+do
+	for b_degree in ${b_degrees[*]}
+	do
+		t_min="0.015"
+		t_max="0.05"
+
+		extra_config="-t-tr1 0.20 -t-tr2 0.22"
+
+		dir="fits/$dataset/exp$b_degree,t_min=$t_min,t_max=$t_max"
+		mkdir -p "$dir"
+
+		echo "* $dir"
+
+		../../../do_fit -input "$dataset" -b-degree "$b_degree" -t-min "$t_min" -t-max "$t_max" $extra_config\
+				-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
+				-cni-formula "PH" \
+				-b1-value 10.36 \
+				-use-rho-fixed 1 -rho-value 0\
+				-output "$dir/fit.root" -results "$dir/fit.out" -tex "$dir/fit.tex" \
+			&> "$dir/fit.log" &
+	done
+done
