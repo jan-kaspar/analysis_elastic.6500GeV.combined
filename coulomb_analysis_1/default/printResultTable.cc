@@ -9,7 +9,7 @@ using namespace std;
 
 void PrintOne(const Results &r, char *buf)
 {
-	sprintf(buf, "%.2f, %.3f+-%.3f", r.chi_sq_norm, r.rho, r.rho_e);
+	sprintf(buf, "%.2f, %.3f+-%.3f, %.2f", r.chi_sq_norm, r.rho, r.rho_e, r.si_tot);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -37,8 +37,8 @@ int main()
 		//{ "t_max=0.17" },
 	};
 
-	unsigned int width_row_id = 30;
-	unsigned int width_col = 25;
+	unsigned int width_row_id = 35;
+	unsigned int width_col = 30;
 
 	//--------------------
 
