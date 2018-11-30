@@ -76,13 +76,13 @@ int main(int argc, const char **argv)
 	// defaults
 	string inputDataSpec = "2500-2rp-ob-3-5-0.05";
 	B_degree = 3;
-	string cniFormula = "KL";
+	MethodSimpleFit::cniFormula = "KL";
 	use_stat_unc = true;
 	use_syst_unc = true;
 	bool use_norm_unc = false;
 
-	double t_min_data_coll = 8E-4;
-	double t_max_data_coll = 0.17;
+	MethodSimpleFit::t_min_data_coll = 8E-4;
+	MethodSimpleFit::t_max_data_coll = 0.17;
 	
 	string binsSpec = "";
 	unsigned int bi_increment = 1;
@@ -135,8 +135,8 @@ int main(int argc, const char **argv)
 
 		if (TestStringParameter(argc, argv, argi, "-input", inputDataSpec)) continue;
 		
-		if (TestDoubleParameter(argc, argv, argi, "-t-min", t_min_data_coll)) continue;
-		if (TestDoubleParameter(argc, argv, argi, "-t-max", t_max_data_coll)) continue;
+		if (TestDoubleParameter(argc, argv, argi, "-t-min", MethodSimpleFit::t_min_data_coll)) continue;
+		if (TestDoubleParameter(argc, argv, argi, "-t-max", MethodSimpleFit::t_max_data_coll)) continue;
 
 		if (TestUIntParameter(argc, argv, argi, "-binc", bi_increment)) continue;
 		if (TestStringParameter(argc, argv, argi, "-bins", binsSpec)) continue;
@@ -152,7 +152,7 @@ int main(int argc, const char **argv)
 		if (TestBoolParameter(argc, argv, argi, "-use-syst-unc", use_syst_unc)) continue;
 		if (TestBoolParameter(argc, argv, argi, "-use-norm-unc", use_norm_unc)) continue;
 
-		if (TestStringParameter(argc, argv, argi, "-cni-formula", cniFormula)) continue;
+		if (TestStringParameter(argc, argv, argi, "-cni-formula", MethodSimpleFit::cniFormula)) continue;
 
 		if (TestBoolParameter(argc, argv, argi, "-reweight-low-t-points", reweight_low_t_points)) continue;
 		if (TestBoolParameter(argc, argv, argi, "-reweight-low-t-points-meth1", reweight_low_t_points_meth1)) continue;
@@ -266,14 +266,14 @@ int main(int argc, const char **argv)
 	model = hfm;
 
 	// validate CNI mode
-	if (cniFormula == "KL")
+	if (MethodSimpleFit::cniFormula == "KL")
 		chosenCIMode = CoulombInterference::mKL;
-	else if (cniFormula == "SWY")
+	else if (MethodSimpleFit::cniFormula == "SWY")
 		chosenCIMode = CoulombInterference::mSWY;
-	else if (cniFormula == "PH")
+	else if (MethodSimpleFit::cniFormula == "PH")
 		chosenCIMode = CoulombInterference::mPH;
 	else {
-		printf("ERROR: unknown CNI formula '%s'.\n", cniFormula.c_str());
+		printf("ERROR: unknown CNI formula '%s'.\n", MethodSimpleFit::cniFormula.c_str());
 		return 1;
 	}
 
@@ -289,7 +289,7 @@ int main(int argc, const char **argv)
 	printf("    chosenCIMode = %u\n", chosenCIMode);
 	printf("    phaseMode = %u\n", phaseMode);
 	printf("    use_stat_unc = %i, use_syst_unc = %i\n", use_stat_unc, use_syst_unc);
-	printf("    t_min_data_coll = %.2E, t_max_data_coll = %.2E\n", t_min_data_coll, t_max_data_coll);
+	printf("    t_min_data_coll = %.2E, t_max_data_coll = %.2E\n", MethodSimpleFit::t_min_data_coll, MethodSimpleFit::t_max_data_coll);
 	printf("    bi_increment = %u\n", bi_increment);
 
 	// prepare output
@@ -386,10 +386,10 @@ int main(int argc, const char **argv)
 			if (v == 0.)
 				continue;
 
-			if (c < t_min_data_coll)
+			if (c < MethodSimpleFit::t_min_data_coll)
 				continue;
 
-			if (c > t_max_data_coll || c > inputData.dataSetInfo[dsi].t_max)
+			if (c > MethodSimpleFit::t_max_data_coll || c > inputData.dataSetInfo[dsi].t_max)
 				continue;
 
 			BinData bd;
