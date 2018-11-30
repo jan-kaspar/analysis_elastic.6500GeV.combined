@@ -358,16 +358,16 @@ int main()
 
 	//----------------------------------------------------------------------------------------------------
 
-	if (false)
+	if (true)
 	{
 		a_a.clear();
-		a_a.push_back(1.84E9);
+		a_a.push_back(1.938E9);
 		//a_a.push_back(1.84E9 * 1.02);
 		//a_a.push_back(1.84E9 * 1.04);
 		//a_a.push_back(1.84E9 * 1.20);
 
 		a_b1.clear();
-		a_b1.push_back(10.2);
+		a_b1.push_back(10.39);
 
 		a_b2.clear();
 		a_b2.push_back(0.);
@@ -376,12 +376,13 @@ int main()
 		a_b3.push_back(0.);
 
 		a_p0.clear();
+		a_p0.push_back(M_PI/2. - atan(0.04));
 		a_p0.push_back(M_PI/2. - atan(0.06));
 		a_p0.push_back(M_PI/2. - atan(0.08));
+		a_p0.push_back(M_PI/2. - atan(0.09));
 		a_p0.push_back(M_PI/2. - atan(0.10));
 		a_p0.push_back(M_PI/2. - atan(0.12));
 		a_p0.push_back(M_PI/2. - atan(0.14));
-		a_p0.push_back(M_PI/2. - atan(0.16));
 
 		a_pm.clear();
 		a_pm.push_back(HadronicFitModel::pmConstant);
@@ -461,7 +462,7 @@ int main()
 
 	//----------------------------------------------------------------------------------------------------
 
-	if (true)
+	if (false)
 	{
 		a_a.clear();
 		a_a.push_back(+19.450E8);
