@@ -1,5 +1,5 @@
-HepMC_DIR = /afs/cern.ch/cms/slc6_amd64_gcc481/external/hepmc/2.06.07
-GSL_DIR = /afs/cern.ch/cms/slc6_amd64_gcc481/external/gsl/1.10/
+HepMC_DIR = /cvmfs/cms.cern.ch/slc6_amd64_gcc481/external/hepmc/2.06.07
+GSL_DIR = /cvmfs/cms.cern.ch/slc6_amd64_gcc481/external/gsl/1.10
 Elegent_DIR = ../Elegent
 
 INCS = `root-config --cflags` -I$(GSL_DIR)/include -I${Elegent_DIR} -I$(HepMC_DIR)/include
