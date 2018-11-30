@@ -30,6 +30,11 @@ double rho_value_fix;
 
 bool useInterpolatedPsi;
 
+string cniFormula;
+
+double t_min_data_coll;
+double t_max_data_coll;
+
 double t_min_fit, t_max_fit;
 
 TF1 *f_fit;
@@ -900,8 +905,8 @@ unsigned int RunFit(const string & /*settings*/, Results &results, FILE *f_out_t
 
 	// ------------------------------ save fit data in TeX format
 
-	fprintf(f_out_tex, "$n_{\\rm points} = %lu$, $\\chi^2/\\hbox{ndf} =  %.3f / (%lu - %u) = %.3f$ \\\\ \n",
-		data_coll.size(), m_chi2, data_coll.size(), m_n_par_var, m_chi2 / m_ndf);
+	fprintf(f_out_tex, "$%.4f < |t| < %.4f$, formula %s, $n_{\\rm points} = %lu$, $\\chi^2/\\hbox{ndf} =  %.3f / (%lu - %u) = %.3f$ \\\\ \n",
+		t_min_data_coll, t_max_data_coll, cniFormula.c_str(), data_coll.size(), m_chi2, data_coll.size(), m_n_par_var, m_chi2 / m_ndf);
 	fprintf(f_out_tex, "$\\rho = %.4f \\pm %.4f$, $\\si_{\\rm tot} = (%.2f \\pm %.2f)\\un{mb}$, $A' \\equiv \\et\\, \\d\\si^{\\rm N}/\\d t|_0 = %.2f\\un{mb/GeV^2}$, $\\eta = %.5f \\pm %.5f$ \\\\ \n",
 		results.rho, results.rho_e, si_tot, si_tot_unc, A_p, eta, eta_unc);
 
