@@ -1,0 +1,82 @@
+#!/bin/bash
+
+base_dir="/afs/cern.ch/work/j/jkaspar/analyses/elastic/6500GeV/combined/coulomb_analysis_1"
+
+input="2500-2rp-ob-2-10-0.05"
+
+top_dir="test5"
+
+#----------------------------------------------------------------------------------------------------
+
+dir="${top_dir}_step_a"
+mkdir -p "$dir"
+
+$base_dir/do_fit\
+		-input "$input" -b-degree "1" -t-min "0.0037" -t-max "0.05" -t-tr1 "0.20" -t-tr2 "0.22" \
+		-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
+		-cni-formula "PH" \
+		-b1-value 10.36 \
+		-use-rho-fixed 1 -rho-value 0\
+		-output "$dir/fit.root" -results "$dir/fit.out" -tex "$dir/fit.tex" \
+	&> "$dir/fit.log"
+
+Ap=`cat $dir/fit.log|grep "Ap-->"`
+Ap=${Ap#*-->}
+
+b1=`cat $dir/fit.log|grep "b1-->"`
+b1=${b1#*-->}
+
+#----------------------------------------------------------------------------------------------------
+
+dir="${top_dir}_step_b"
+mkdir -p "$dir"
+
+$base_dir/do_fit\
+		-input "$input" -b-degree "1" -t-max "0.0023" -t-tr1 "0.05" -t-tr2 "0.07"\
+		-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
+		-use-normalisation-from-a 1 -Ap-value "$Ap"\
+		-use-b1-fixed 1 -b1-value "$b1"\
+		-output "$dir/fit.root" -results "$dir/fit.out" -tex "$dir/fit.tex" \
+	&> "$dir/fit.log"
+
+eta=`cat $dir/fit.log|grep "eta-->"`
+eta=${eta#*-->}
+
+a=`cat $dir/fit.log|grep "a-->"`
+a=${a#*-->}
+
+#----------------------------------------------------------------------------------------------------
+
+dir="${top_dir}_step_c"
+mkdir -p "$dir"
+
+$base_dir/do_fit\
+		-input "$input" -b-degree "1" -t-min "0" -t-max "0.0037" -t-tr1 "0.05" -t-tr2 "0.07"\
+		-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
+		-use-normalisation-fit-parameter 1\
+		-use-normalisation-chisq-term 0 \
+		-use-eta-fixed 1 -eta-value "$eta" \
+		-use-a-fixed 1 -a-value "$a"\
+		-use-b1-fixed 1 -b1-value "$b1"\
+		-output "$dir/fit.root" -results "$dir/fit.out" -tex "$dir/fit.tex" \
+	&> "$dir/fit.log"
+
+rho=`cat $dir/fit.log|grep "rho-->"`
+rho=${rho#*-->}
+
+#----------------------------------------------------------------------------------------------------
+
+dir="${top_dir}_step_d"
+mkdir -p "$dir"
+
+$base_dir/do_fit\
+		-input "$input" -b-degree "1" -t-min "0" -t-max "0.05" -t-tr1 "0.05" -t-tr2 "0.07" \
+		-use-stat-unc 1 -use-syst-unc 1 -use-norm-unc 0\
+		-use-normalisation-fit-parameter 1\
+		-use-normalisation-chisq-term 0 \
+		-use-eta-fixed 1 -eta-value "$eta" \
+		-use-a-fixed 1 -a-value "$a"\
+		-use-b1-fixed 1 -b1-value "$b1"\
+		-use-rho-fixed 1 -rho-value "$rho"\
+		-output "$dir/fit.root" -results "$dir/fit.out" -tex "$dir/fit.tex" \
+	&> "$dir/fit.log"
